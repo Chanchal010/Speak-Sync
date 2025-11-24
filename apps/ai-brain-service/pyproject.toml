@@ -1,0 +1,12 @@
+[tool.poetry]
+name = "ai-brain-service"
+version = "1.0.0"
+description = "AI Intelligence Core for Speak-Sync"
+authors = ["Your Team"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

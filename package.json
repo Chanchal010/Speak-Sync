@@ -1,0 +1,20 @@
+{
+  "name": "speak-sync",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:gateway": "pnpm --filter gateway-service dev",
+    "dev:scheduler": "pnpm --filter scheduler-service dev",
+    "dev:worker": "pnpm --filter worker-service dev",
+    "build:all": "pnpm -r build",
+    "test:all": "pnpm -r test",
+    "lint:all": "pnpm -r lint",
+    "clean": "pnpm -r clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.1",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.3"
+  }
+}
