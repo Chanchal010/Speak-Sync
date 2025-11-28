@@ -1,0 +1,287 @@
+{
+    "info": {
+        "_postman_id": "speak-sync-api-collection",
+        "name": "Speak-Sync API",
+        "description": "Complete API collection for Speak-Sync Gateway Service with authentication endpoints",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "speak-sync"
+    },
+    "item": [
+        {
+            "name": "Health Check",
+            "item": [
+                {
+                    "name": "Gateway Health",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/health",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "health"
+                            ]
+                        },
+                        "description": "Check if the Gateway Service is running and healthy"
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.tokens) {",
+                                    "        pm.environment.set('ACCESS_TOKEN', jsonData.data.tokens.accessToken);",
+                                    "        pm.environment.set('REFRESH_TOKEN', jsonData.data.tokens.refreshToken);",
+                                    "        pm.environment.set('USER_ID', jsonData.data.user.id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"name\": \"John Doe\",\n    \"password\": \"SecurePass123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/register",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "register"
+                            ]
+                        },
+                        "description": "Register a new user account.\n\n**Request Body:**\n- `email` (string, required): Valid email address\n- `name` (string, required): User's full name (2-100 characters)\n- `password` (string, required): Strong password (min 8 chars, must contain uppercase, lowercase, number, and special character)\n\n**Response:**\n- `201 Created`: User registered successfully with tokens\n- `409 Conflict`: Email already registered\n- `400 Bad Request`: Validation error"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Login User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.tokens) {",
+                                    "        pm.environment.set('ACCESS_TOKEN', jsonData.data.tokens.accessToken);",
+                                    "        pm.environment.set('REFRESH_TOKEN', jsonData.data.tokens.refreshToken);",
+                                    "        pm.environment.set('USER_ID', jsonData.data.user.id);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"SecurePass123!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/login",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Login with existing user credentials.\n\n**Request Body:**\n- `email` (string, required): User's email address\n- `password` (string, required): User's password\n\n**Response:**\n- `200 OK`: Login successful with tokens and user data\n- `401 Unauthorized`: Invalid credentials or account deactivated\n- `400 Bad Request`: Validation error"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Refresh Token",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.tokens) {",
+                                    "        pm.environment.set('ACCESS_TOKEN', jsonData.data.tokens.accessToken);",
+                                    "        pm.environment.set('REFRESH_TOKEN', jsonData.data.tokens.refreshToken);",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"refreshToken\": \"{{REFRESH_TOKEN}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/refresh",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "refresh"
+                            ]
+                        },
+                        "description": "Refresh access token using refresh token.\n\n**Request Body:**\n- `refreshToken` (string, required): Valid refresh token\n\n**Response:**\n- `200 OK`: New tokens generated\n- `401 Unauthorized`: Invalid or expired refresh token\n- `400 Bad Request`: Validation error"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{ACCESS_TOKEN}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/logout",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "logout"
+                            ]
+                        },
+                        "description": "Logout user and invalidate access token.\n\n**Headers:**\n- `Authorization: Bearer <access_token>` (required)\n\n**Response:**\n- `200 OK`: Logged out successfully\n- `401 Unauthorized`: Invalid or missing token"
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Current User",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{ACCESS_TOKEN}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/me",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "me"
+                            ]
+                        },
+                        "description": "Get current authenticated user's information.\n\n**Headers:**\n- `Authorization: Bearer <access_token>` (required)\n\n**Response:**\n- `200 OK`: User data returned\n- `401 Unauthorized`: Invalid or missing token"
+                    },
+                    "response": []
+                }
+            ],
+            "description": "Authentication endpoints for user registration, login, logout, and token management"
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "BASE_URL",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "ACCESS_TOKEN",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "REFRESH_TOKEN",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "USER_ID",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}
