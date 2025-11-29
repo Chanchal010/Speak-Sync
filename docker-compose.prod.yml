@@ -1,0 +1,236 @@
+version: '3.8'
+
+services:
+  # Infrastructure Services
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: speak-sync-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-speak_sync_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - speak-sync-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: speak-sync-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - speak-sync-network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: speak-sync-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-guest}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - speak-sync-network
+
+  mongodb:
+    image: mongo:7
+    container_name: speak-sync-mongodb
+    environment:
+      MONGO_INITDB_DATABASE: speak_sync_lifestyle
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - speak-sync-network
+
+  # Application Services
+  scheduler-service:
+    build:
+      context: .
+      dockerfile: apps/scheduler-service/Dockerfile
+    container_name: speak-sync-scheduler
+    environment:
+      PORT: 3001
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-dev_password}@postgres:5432/${POSTGRES_DB:-speak_sync_db}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - speak-sync-network
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: apps/gateway-service/Dockerfile
+    container_name: speak-sync-gateway
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_ACCESS_EXPIRY: ${JWT_ACCESS_EXPIRY:-15m}
+      JWT_REFRESH_EXPIRY: ${JWT_REFRESH_EXPIRY:-7d}
+      SCHEDULER_SERVICE_URL: http://scheduler-service:3001
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "3000:3000"
+    depends_on:
+      scheduler-service:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - speak-sync-network
+
+  ai-brain-service:
+    build:
+      context: .
+      dockerfile: apps/ai-brain-service/Dockerfile
+    container_name: speak-sync-ai-brain
+    environment:
+      PORT: 8000
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-dev_password}@postgres:5432/${POSTGRES_DB:-speak_sync_db}
+      RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DEFAULT_MODEL: ${DEFAULT_MODEL:-llama-3.1-70b-versatile}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - speak-sync-network
+
+  lifestyle-service:
+    build:
+      context: .
+      dockerfile: apps/lifestyle-service/Dockerfile
+    container_name: speak-sync-lifestyle
+    environment:
+      PORT: 8001
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-dev_password}@postgres:5432/${POSTGRES_DB:-speak_sync_db}
+      RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+      WEATHER_API_KEY: ${WEATHER_API_KEY:-}
+      NEWS_API_KEY: ${NEWS_API_KEY:-}
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    networks:
+      - speak-sync-network
+
+  worker-service:
+    build:
+      context: .
+      dockerfile: apps/worker-service/Dockerfile
+    container_name: speak-sync-worker
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-dev_password}@postgres:5432/${POSTGRES_DB:-speak_sync_db}
+      RABBITMQ_URL: amqp://${RABBITMQ_DEFAULT_USER:-guest}:${RABBITMQ_DEFAULT_PASS:-guest}@rabbitmq:5672
+      REDIS_URL: redis://redis:6379
+      SCHEDULER_SERVICE_URL: http://scheduler-service:3001
+      AI_BRAIN_SERVICE_URL: http://ai-brain-service:8000
+      LIFESTYLE_SERVICE_URL: http://lifestyle-service:8001
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    depends_on:
+      scheduler-service:
+        condition: service_healthy
+      ai-brain-service:
+        condition: service_healthy
+      lifestyle-service:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - speak-sync-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  mongodb_data:
+
+networks:
+  speak-sync-network:
+    driver: bridge
