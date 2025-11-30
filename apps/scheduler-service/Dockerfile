@@ -36,16 +36,21 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages ./packages
 COPY apps/scheduler-service/package.json ./apps/scheduler-service/
 
-# Install production dependencies only
+# Copy Prisma schema before install
+COPY --from=build /app/apps/scheduler-service/prisma ./apps/scheduler-service/prisma
+
+# Install production dependencies
 RUN pnpm install --frozen-lockfile --prod
 
+# Generate Prisma client in production
+WORKDIR /app/apps/scheduler-service
+RUN pnpm prisma generate
+
 # Copy built files
+WORKDIR /app
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/apps/scheduler-service/dist ./apps/scheduler-service/dist
 COPY --from=build /app/apps/scheduler-service/package.json ./apps/scheduler-service/
-COPY --from=build /app/apps/scheduler-service/prisma ./apps/scheduler-service/prisma
-COPY --from=build /app/apps/scheduler-service/node_modules/.prisma ./apps/scheduler-service/node_modules/.prisma
-COPY --from=build /app/apps/scheduler-service/node_modules/@prisma ./apps/scheduler-service/node_modules/@prisma
 
 WORKDIR /app/apps/scheduler-service
 
