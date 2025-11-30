@@ -20,11 +20,14 @@ RUN pnpm --filter "@speak-sync/*" build
 # Stage 4: Build scheduler service
 FROM build-packages AS build
 COPY apps/scheduler-service ./apps/scheduler-service
-RUN pnpm --filter scheduler-service build
 
-# Generate Prisma client
+# Generate Prisma client BEFORE building TypeScript
 WORKDIR /app/apps/scheduler-service
 RUN pnpm prisma generate
+
+# Now build TypeScript (Prisma client is available)
+WORKDIR /app
+RUN pnpm --filter scheduler-service build
 
 # Stage 5: Production runtime
 FROM node:20-alpine AS production
