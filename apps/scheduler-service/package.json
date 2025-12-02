@@ -17,6 +17,7 @@
     "@speak-sync/common": "workspace:*",
     "@speak-sync/event-schemas": "workspace:*",
     "argon2": "^0.44.0",
+    "cors": "^2.8.5",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^16.4.7",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@prisma/config": "^7.0.0",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.2",
     "@types/pg": "^8.15.6",

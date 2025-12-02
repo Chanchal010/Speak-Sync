@@ -17,24 +17,100 @@ model User {
   lastLoginAt  DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  
+  // Relations
   tasks        Task[]
   events       Event[]
+  categories   Category[]
 
   @@index([email])
   @@index([role])
 }
 
+model Category {
+  id          String   @id @default(uuid())
+  name        String   // Personal, Learning, Fitness, Work, Shopping, Wish List
+  icon        String?  // Icon identifier (emoji or icon name)
+  color       String   @default("#00FF00") // Hex color code for UI
+  order       Int      @default(0) // Display order
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Relations
+  tasks       Task[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
 model Task {
   id          String    @id @default(uuid())
+  
+  // --- UI FIELDS (Visible in wireframe) ---
   title       String
   description String?
+  
+  // Category-based organization (as shown in wireframe)
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  
+  // Eisenhower Matrix: VI (Very Important), MI (Moderately Important), NI (Not Important)
   priority    String    @default("MI") // VI, MI, NI
-  status      String    @default("pending")
-  dueDate     DateTime?
+  
+  // Task status lifecycle
+  status      String    @default("pending") // pending, in_progress, completed, cancelled
+  
+  // Scheduling (for Calendar View integration)
+  scheduledDate DateTime? // When the task is planned
+  dueDate       DateTime? // Deadline
+  completedAt   DateTime? // When marked complete
+  
+  // Color coding (can be inherited from category or custom)
+  colorHex    String?   // Custom color override
+  
+  // Tags for additional categorization
+  tags        String[]  // ["urgent", "meeting", "personal"]
+  
+  // --- AI TRAINING FIELDS (Hidden but Critical) ---
+  
+  // Voice-to-task transcription
+  voiceTranscript String? // Original voice command: "Remind me to pay bills urgently"
+  
+  // Duration estimation & tracking
+  timeEstimateMinutes  Int? // User's estimated time or AI prediction
+  actualTimeMinutes    Int? // Actual time taken (calculated from start/complete)
+  
+  // Rescheduling behavior analysis
+  rescheduleCount Int @default(0) // How many times user moved this task
+  
+  // Sentiment & context analysis
+  sentimentScore  Float? // -1.0 (stressed) to 1.0 (calm)
+  contextMetadata Json?  // {location, device, weather, time_of_day, user_mood, etc}
+  
+  // AI learning features
+  priorityChanges Json?  // [{from: "MI", to: "VI", changedAt: "2025-12-03T10:00:00Z", reason: "user_override"}]
+  completionPattern Json? // {usual_time: "morning", usual_day: "monday", success_rate: 0.85}
+  
+  // --- RELATIONS & METADATA ---
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Timestamps (essential for AI training)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete to preserve training data
+  
+  @@index([userId])
+  @@index([categoryId])
+  @@index([priority])
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([dueDate])
+  @@index([deletedAt])
+  @@index([userId, status, deletedAt]) // Composite for active tasks query
 }
 
 model Event {
