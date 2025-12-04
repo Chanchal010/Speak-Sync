@@ -9,6 +9,10 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ..models.food_log import FoodLogInDB, FoodLogCreate, FoodLogUpdate
 from ..services.habit_service import get_habit_service
+from ..utils.rabbitmq.publisher import get_event_publisher
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class FoodLogService:
@@ -45,11 +49,29 @@ class FoodLogService:
         result = await self.collection.insert_one(log_dict)
         log_dict["_id"] = result.inserted_id
         
+        food_log = FoodLogInDB(**log_dict)
+        
         # Update habit streak and total_logs
         log_date = log_data.timestamp.date() if log_data.timestamp else date.today()
         await self.habit_service.update_streak(user_id, habit_id, log_date)
         
-        return FoodLogInDB(**log_dict)
+        # Publish FOOD_LOGGED event
+        try:
+            publisher = get_event_publisher()
+            publisher.publish_food_logged(
+                user_id=user_id,
+                habit_id=habit_id,
+                log_id=str(food_log.id),
+                meal_type=food_log.meal_type,
+                satisfaction=food_log.satisfaction,
+                emotional_state=food_log.emotional_state,
+                macros=food_log.macros,
+                logged_at=food_log.timestamp
+            )
+        except Exception as e:
+            logger.error(f"Failed to publish FOOD_LOGGED event: {e}")
+        
+        return food_log
     
     async def get_food_log_by_id(
         self,

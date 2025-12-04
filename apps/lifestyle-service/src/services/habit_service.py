@@ -8,6 +8,10 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ..models.habit import HabitCreate, HabitUpdate, HabitInDB, HabitResponse
 from ..database.mongodb import COLLECTIONS
+from ..utils.rabbitmq.publisher import get_event_publisher
+import logging
+
+logger = logging.getLogger(__name__)
 
 class HabitService:
     def __init__(self, database: AsyncIOMotorDatabase):
@@ -25,7 +29,24 @@ class HabitService:
         result = await self.collection.insert_one(habit_dict)
         habit_dict["_id"] = result.inserted_id
         
-        return HabitInDB(**habit_dict)
+        habit = HabitInDB(**habit_dict)
+        
+        # Publish HABIT_CREATED event
+        try:
+            publisher = get_event_publisher()
+            publisher.publish_habit_created(
+                user_id=user_id,
+                habit_id=str(habit.id),
+                habit_type=habit.habit_type,
+                name=habit.name,
+                frequency=habit.frequency,
+                target_value=habit.target_value,
+                target_unit=habit.target_unit
+            )
+        except Exception as e:
+            logger.error(f"Failed to publish HABIT_CREATED event: {e}")
+        
+        return habit
     
     async def get_habit_by_id(self, user_id: str, habit_id: str) -> Optional[HabitInDB]:
         """Get a single habit by ID"""

@@ -8,6 +8,10 @@ from bson import ObjectId
 
 from ..models.study_log import StudyLogCreate, StudyLogUpdate, StudyLogInDB, StudyLogResponse
 from .habit_service import HabitService
+from ..utils.rabbitmq.publisher import get_event_publisher
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class StudyLogService:
@@ -76,11 +80,30 @@ class StudyLogService:
         result = await self.collection.insert_one(log_dict)
         log_dict["_id"] = result.inserted_id
         
+        study_log = StudyLogInDB(**log_dict)
+        
         # Update habit streak and count
         log_date = log_dict["actual_start"].date() if isinstance(log_dict["actual_start"], datetime) else log_dict["actual_start"]
         await self.habit_service.update_streak(user_id, habit_id, log_date)
         
-        return StudyLogInDB(**log_dict)
+        # Publish STUDY_LOGGED event
+        try:
+            publisher = get_event_publisher()
+            duration = int((study_log.actual_end - study_log.actual_start).total_seconds() / 60)
+            publisher.publish_study_logged(
+                user_id=user_id,
+                habit_id=habit_id,
+                log_id=str(study_log.id),
+                task_id=study_log.task_id,
+                duration=duration,
+                flow_state=study_log.flow_state or False,
+                stickiness_percentage=study_log.stickiness_percentage or 0,
+                logged_at=study_log.timestamp
+            )
+        except Exception as e:
+            logger.error(f"Failed to publish STUDY_LOGGED event: {e}")
+        
+        return study_log
     
     async def get_study_log_by_id(
         self,

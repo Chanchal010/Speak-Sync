@@ -1,15 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 from .database.mongodb import connect_to_mongo, close_mongo_connection, get_database
 from .api.routes import habits, food_logs, exercise_logs, financial_logs, sleep_logs, study_logs, water_logs, analytics, export
+from .utils.rabbitmq import init_rabbitmq, get_rabbitmq
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle manager for startup and shutdown"""
     # Startup
     await connect_to_mongo()
+    
+    # Initialize RabbitMQ in thread pool to avoid blocking
+    loop = asyncio.get_event_loop()
+    with ThreadPoolExecutor() as executor:
+        await loop.run_in_executor(executor, init_rabbitmq)
     
     # Create indexes
     db = get_database()
@@ -54,11 +62,13 @@ async def lifespan(app: FastAPI):
     await db["water_logs"].create_index([("user_id", 1), ("timestamp", -1)])
     await db["water_logs"].create_index([("user_id", 1), ("urine_color", 1)])
     
-    print("✅ MongoDB indexes created")
+    print("[SUCCESS] MongoDB indexes created")
     
     yield
     
     # Shutdown
+    rabbitmq = get_rabbitmq()
+    rabbitmq.close()
     await close_mongo_connection()
 
 app = FastAPI(

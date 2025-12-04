@@ -11,6 +11,7 @@ import {
   bulkUpdateEventsSchema,
   eventIdSchema,
 } from '../validation/event.validation.js';
+import { eventPublisher } from '../lib/rabbitmq/index.js';
 
 class EventController {
   /**
@@ -27,6 +28,40 @@ class EventController {
 
       const validatedData = createEventSchema.parse(req.body);
       const result = await eventService.createEvent(userId, validatedData);
+
+      // Publish EVENT_CREATED event
+      await eventPublisher.publishEventCreated(userId, result.event.id, {
+        title: result.event.title,
+        description: result.event.description || undefined,
+        startTime: new Date(result.event.startTime),
+        endTime: new Date(result.event.endTime),
+        location: result.event.location || undefined,
+        attendees: result.event.attendees ? (result.event.attendees as string[]) : undefined,
+        isRecurring: result.event.recurrenceRule !== null,
+      }).catch(err => console.error('Failed to publish EVENT_CREATED event:', err));
+
+      // Publish EVENT_CONFLICT_DETECTED events for any conflicts
+      if (result.conflicts.length > 0) {
+        for (const conflict of result.conflicts) {
+          const startTime = new Date(result.event.startTime);
+          const endTime = new Date(result.event.endTime);
+          const conflictStart = new Date(conflict.startTime);
+          const conflictEnd = new Date(conflict.endTime);
+          
+          const overlapStart = new Date(Math.max(startTime.getTime(), conflictStart.getTime()));
+          const overlapEnd = new Date(Math.min(endTime.getTime(), conflictEnd.getTime()));
+          const overlapMinutes = Math.round((overlapEnd.getTime() - overlapStart.getTime()) / 60000);
+
+          await eventPublisher.publishEventConflictDetected(userId, result.event.id, {
+            title: result.event.title,
+            startTime,
+            endTime,
+            conflictingEventId: conflict.id,
+            conflictingEventTitle: conflict.title,
+            overlapMinutes,
+          }).catch(err => console.error('Failed to publish EVENT_CONFLICT_DETECTED event:', err));
+        }
+      }
 
       res.status(201).json({
         success: true,
@@ -164,6 +199,24 @@ class EventController {
       const validatedData = updateEventSchema.parse(req.body);
       
       const event = await eventService.updateEvent(userId, id, validatedData);
+
+      // Publish EVENT_UPDATED event
+      const changes = Object.keys(validatedData)
+        .filter(key => validatedData[key as keyof typeof validatedData] !== undefined)
+        .map(key => ({
+          field: key,
+          oldValue: null,
+          newValue: validatedData[key as keyof typeof validatedData],
+        }));
+
+      if (changes.length > 0) {
+        await eventPublisher.publishEventUpdated(userId, id, {
+          title: event.title,
+          startTime: new Date(event.startTime),
+          endTime: new Date(event.endTime),
+          changes,
+        }).catch(err => console.error('Failed to publish EVENT_UPDATED event:', err));
+      }
 
       res.status(200).json({
         success: true,

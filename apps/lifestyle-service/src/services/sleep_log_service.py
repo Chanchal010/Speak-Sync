@@ -8,6 +8,10 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ..models.sleep_log import SleepLogInDB, SleepLogCreate, SleepLogUpdate
 from .habit_service import HabitService, get_habit_service
+from ..utils.rabbitmq.publisher import get_event_publisher
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class SleepLogService:
@@ -61,11 +65,30 @@ class SleepLogService:
         result = await self.collection.insert_one(log_dict)
         log_dict["_id"] = result.inserted_id
         
+        sleep_log = SleepLogInDB(**log_dict)
+        
         # Update habit streak and count
         log_date = log_dict["wake_time"].date() if isinstance(log_dict["wake_time"], datetime) else log_dict["wake_time"]
         await self.habit_service.update_streak(user_id, habit_id, log_date)
         
-        return SleepLogInDB(**log_dict)
+        # Publish SLEEP_LOGGED event
+        try:
+            publisher = get_event_publisher()
+            publisher.publish_sleep_logged(
+                user_id=user_id,
+                habit_id=habit_id,
+                log_id=str(sleep_log.id),
+                bedtime=sleep_log.bedtime,
+                wake_time=sleep_log.wake_time,
+                duration=int(sleep_log.sleep_duration * 60),  # Convert hours to minutes
+                quality=sleep_log.sleep_quality,
+                interruptions=sleep_log.interruptions or 0,
+                logged_at=sleep_log.timestamp
+            )
+        except Exception as e:
+            logger.error(f"Failed to publish SLEEP_LOGGED event: {e}")
+        
+        return sleep_log
     
     async def get_sleep_log_by_id(
         self,

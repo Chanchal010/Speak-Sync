@@ -8,6 +8,10 @@ from bson import ObjectId
 
 from ..models.water_log import WaterLogCreate, WaterLogUpdate, WaterLogInDB, WaterLogResponse
 from .habit_service import HabitService
+from ..utils.rabbitmq.publisher import get_event_publisher
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class WaterLogService:
@@ -70,11 +74,29 @@ class WaterLogService:
         result = await self.collection.insert_one(log_dict)
         log_dict["_id"] = result.inserted_id
         
+        water_log = WaterLogInDB(**log_dict)
+        
         # Update habit streak and count
         log_date = log_dict["timestamp"].date()
         await self.habit_service.update_streak(user_id, habit_id, log_date)
         
-        return WaterLogInDB(**log_dict)
+        # Publish WATER_LOGGED event
+        try:
+            publisher = get_event_publisher()
+            publisher.publish_water_logged(
+                user_id=user_id,
+                habit_id=habit_id,
+                log_id=str(water_log.id),
+                amount=water_log.amount_ml,
+                urine_color=water_log.urine_color or 4,
+                caffeine=water_log.caffeine_intake or False,
+                cognitive_fog=water_log.cognitive_fog or False,
+                logged_at=water_log.timestamp
+            )
+        except Exception as e:
+            logger.error(f"Failed to publish WATER_LOGGED event: {e}")
+        
+        return water_log
     
     async def get_water_log_by_id(
         self,

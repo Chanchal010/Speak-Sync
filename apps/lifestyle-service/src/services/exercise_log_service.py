@@ -9,6 +9,10 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from ..models.exercise_log import ExerciseLogInDB, ExerciseLogCreate, ExerciseLogUpdate
 from ..services.habit_service import get_habit_service
+from ..utils.rabbitmq.publisher import get_event_publisher
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ExerciseLogService:
@@ -45,11 +49,29 @@ class ExerciseLogService:
         result = await self.collection.insert_one(log_dict)
         log_dict["_id"] = result.inserted_id
         
+        exercise_log = ExerciseLogInDB(**log_dict)
+        
         # Update habit streak and total_logs
         log_date = log_data.timestamp.date() if log_data.timestamp else date.today()
         await self.habit_service.update_streak(user_id, habit_id, log_date)
         
-        return ExerciseLogInDB(**log_dict)
+        # Publish EXERCISE_LOGGED event
+        try:
+            publisher = get_event_publisher()
+            publisher.publish_exercise_logged(
+                user_id=user_id,
+                habit_id=habit_id,
+                log_id=str(exercise_log.id),
+                activity_type=exercise_log.activity_type,
+                duration=exercise_log.duration,
+                rpe=exercise_log.rpe,
+                post_energy=exercise_log.post_energy,
+                logged_at=exercise_log.timestamp
+            )
+        except Exception as e:
+            logger.error(f"Failed to publish EXERCISE_LOGGED event: {e}")
+        
+        return exercise_log
     
     async def get_exercise_log_by_id(
         self,

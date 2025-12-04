@@ -7,6 +7,7 @@ import {
   bulkUpdateSchema,
   taskIdSchema,
 } from '../validation/task.validation.js';
+import { eventPublisher } from '../lib/rabbitmq/index.js';
 
 export class TaskController {
   /**
@@ -32,6 +33,17 @@ export class TaskController {
       };
 
       const task = await taskService.createTask(userId, taskData);
+
+      // Publish TASK_CREATED event
+      await eventPublisher.publishTaskCreated(userId, task.id, {
+        title: task.title,
+        description: task.description || undefined,
+        priority: task.priority as 'VI' | 'MI' | 'NI',
+        categoryId: task.categoryId || undefined,
+        dueDate: task.dueDate || undefined,
+        scheduledDate: task.scheduledDate || undefined,
+        tags: task.tags || undefined,
+      }).catch(err => console.error('Failed to publish TASK_CREATED event:', err));
 
       res.status(201).json({
         success: true,
@@ -182,6 +194,23 @@ export class TaskController {
 
       const task = await taskService.updateTask(userId, id, updateData);
 
+      // Publish TASK_UPDATED event
+      const changes = Object.keys(updateData)
+        .filter(key => updateData[key as keyof typeof updateData] !== undefined)
+        .map(key => ({
+          field: key,
+          oldValue: null, // Would need to fetch old task to get old values
+          newValue: updateData[key as keyof typeof updateData],
+        }));
+
+      if (changes.length > 0) {
+        await eventPublisher.publishTaskUpdated(userId, id, {
+          title: task.title,
+          priority: task.priority as 'VI' | 'MI' | 'NI',
+          changes,
+        }).catch(err => console.error('Failed to publish TASK_UPDATED event:', err));
+      }
+
       res.json({
         success: true,
         data: task,
@@ -209,6 +238,17 @@ export class TaskController {
 
       const task = await taskService.toggleTaskCompletion(userId, id);
 
+      // Publish TASK_COMPLETED event if task was completed
+      if (task.status === 'completed' && task.completedAt) {
+        await eventPublisher.publishTaskCompleted(userId, id, {
+          title: task.title,
+          priority: task.priority as 'VI' | 'MI' | 'NI',
+          completedAt: task.completedAt,
+          timeEstimate: (task as any).timeEstimate || undefined,
+          actualTime: (task as any).actualTime || undefined,
+        }).catch(err => console.error('Failed to publish TASK_COMPLETED event:', err));
+      }
+
       res.json({
         success: true,
         data: task,
@@ -235,7 +275,19 @@ export class TaskController {
 
       const { id } = taskIdSchema.parse(req.params);
 
+      // Get task before deletion to publish event with task details
+      const task = await taskService.getTaskById(userId, id);
+      
       const result = await taskService.deleteTask(userId, id);
+
+      // Publish TASK_DELETED event
+      if (task) {
+        await eventPublisher.publishTaskDeleted(userId, id, {
+          title: task.title,
+          priority: task.priority as 'VI' | 'MI' | 'NI',
+          reason: 'User deleted task',
+        }).catch(err => console.error('Failed to publish TASK_DELETED event:', err));
+      }
 
       res.json({
         success: true,

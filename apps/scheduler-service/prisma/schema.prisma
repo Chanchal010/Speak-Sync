@@ -98,6 +98,9 @@ model Task {
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  // Reminders tracking
+  lastReminderSentAt DateTime? // Last time a reminder was sent for this task
+  
   // Timestamps (essential for AI training)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -172,6 +175,9 @@ model Event {
   
   // Time preferences learning
   preferredTimeSlots Json? // {monday: ["09:00-11:00", "14:00-16:00"], tuesday: [...]}
+  
+  // Reminders tracking
+  lastReminderSentAt DateTime? // Last time a reminder was sent for this event
   
   // --- RELATIONS & METADATA ---
   userId      String
