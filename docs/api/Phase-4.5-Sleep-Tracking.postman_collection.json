@@ -1,0 +1,216 @@
+{
+	"info": {
+		"name": "Phase 4.5 - Sleep Tracking",
+		"description": "Sleep habit tracking with chronotype detection and sleep debt monitoring for AI analysis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Good Sleep Log (Early Bird)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{SLEEP_HABIT_ID}}\",\n  \"bedtime\": \"2025-12-03T22:00:00Z\",\n  \"wake_time\": \"2025-12-04T06:00:00Z\",\n  \"sleep_quality\": 8,\n  \"sleep_latency\": 15,\n  \"times_awakened\": 1,\n  \"grogginess_level\": 3,\n  \"used_alarm\": true,\n  \"felt_rested\": true,\n  \"target_sleep_hours\": 8.0,\n  \"pre_sleep_activity\": \"reading\",\n  \"screen_time_before_bed\": 30,\n  \"caffeine_intake\": 8,\n  \"exercise_today\": true,\n  \"stress_level\": 3,\n  \"room_temperature\": \"cool\",\n  \"noise_level\": \"quiet\",\n  \"had_dreams\": true,\n  \"dream_type\": \"pleasant\",\n  \"mood_on_waking\": \"refreshed\",\n  \"notes\": \"Great night of sleep!\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs"]
+				}
+			}
+		},
+		{
+			"name": "Create Poor Sleep Log (Insomnia)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{SLEEP_HABIT_ID}}\",\n  \"bedtime\": \"2025-12-02T23:30:00Z\",\n  \"wake_time\": \"2025-12-03T06:15:00Z\",\n  \"sleep_quality\": 4,\n  \"sleep_latency\": 60,\n  \"times_awakened\": 4,\n  \"grogginess_level\": 8,\n  \"used_alarm\": true,\n  \"felt_rested\": false,\n  \"target_sleep_hours\": 8.0,\n  \"pre_sleep_activity\": \"phone\",\n  \"screen_time_before_bed\": 120,\n  \"caffeine_intake\": 3,\n  \"stress_level\": 8,\n  \"room_temperature\": \"warm\",\n  \"noise_level\": \"moderate\",\n  \"had_dreams\": true,\n  \"dream_type\": \"nightmare\",\n  \"mood_on_waking\": \"irritable\",\n  \"notes\": \"Couldn't fall asleep, stressed about work\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs"]
+				}
+			}
+		},
+		{
+			"name": "Create Night Owl Sleep Log",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{SLEEP_HABIT_ID}}\",\n  \"bedtime\": \"2025-12-01T01:30:00Z\",\n  \"wake_time\": \"2025-12-01T09:00:00Z\",\n  \"sleep_quality\": 7,\n  \"sleep_latency\": 20,\n  \"times_awakened\": 1,\n  \"grogginess_level\": 6,\n  \"used_alarm\": true,\n  \"felt_rested\": true,\n  \"target_sleep_hours\": 7.5,\n  \"pre_sleep_activity\": \"work\",\n  \"screen_time_before_bed\": 90,\n  \"caffeine_intake\": 5,\n  \"stress_level\": 5,\n  \"room_temperature\": \"comfortable\",\n  \"noise_level\": \"quiet\",\n  \"mood_on_waking\": \"neutral\",\n  \"notes\": \"Late night working, natural schedule\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs"]
+				}
+			}
+		},
+		{
+			"name": "Create Weekend Sleep-In Log",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{SLEEP_HABIT_ID}}\",\n  \"bedtime\": \"2025-11-30T23:00:00Z\",\n  \"wake_time\": \"2025-12-01T10:00:00Z\",\n  \"natural_wake_time\": \"2025-12-01T10:00:00Z\",\n  \"sleep_quality\": 9,\n  \"sleep_latency\": 10,\n  \"times_awakened\": 0,\n  \"grogginess_level\": 2,\n  \"used_alarm\": false,\n  \"felt_rested\": true,\n  \"target_sleep_hours\": 8.0,\n  \"pre_sleep_activity\": \"meditation\",\n  \"screen_time_before_bed\": 15,\n  \"caffeine_intake\": 10,\n  \"alcohol_intake\": false,\n  \"exercise_today\": true,\n  \"stress_level\": 2,\n  \"room_temperature\": \"cool\",\n  \"noise_level\": \"silent\",\n  \"had_dreams\": true,\n  \"dream_type\": \"pleasant\",\n  \"mood_on_waking\": \"refreshed\",\n  \"notes\": \"Perfect weekend recovery sleep\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs"]
+				}
+			}
+		},
+		{
+			"name": "Get All Sleep Logs",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs"]
+				}
+			}
+		},
+		{
+			"name": "Get Sleep Logs by Habit",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs?habit_id={{SLEEP_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs"],
+					"query": [{"key": "habit_id", "value": "{{SLEEP_HABIT_ID}}"}]
+				}
+			}
+		},
+		{
+			"name": "Get Sleep Logs by Date Range",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs?start_date=2025-11-30T00:00:00Z&end_date=2025-12-05T23:59:59Z",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs"],
+					"query": [
+						{"key": "start_date", "value": "2025-11-30T00:00:00Z"},
+						{"key": "end_date", "value": "2025-12-05T23:59:59Z"}
+					]
+				}
+			}
+		},
+		{
+			"name": "Get Sleep Log by ID",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs/{{SLEEP_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs", "{{SLEEP_LOG_ID}}"]
+				}
+			}
+		},
+		{
+			"name": "Update Sleep Log",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"sleep_quality\": 6,\n  \"notes\": \"Actually felt more tired later in the day\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs/{{SLEEP_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs", "{{SLEEP_LOG_ID}}"]
+				}
+			}
+		},
+		{
+			"name": "Delete Sleep Log",
+			"request": {
+				"method": "DELETE",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs/{{SLEEP_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs", "{{SLEEP_LOG_ID}}"]
+				}
+			}
+		},
+		{
+			"name": "Get Sleep Statistics",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs/stats/overview",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs", "stats", "overview"]
+				}
+			}
+		},
+		{
+			"name": "Get Sleep Stats by Habit",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs/stats/overview?habit_id={{SLEEP_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs", "stats", "overview"],
+					"query": [{"key": "habit_id", "value": "{{SLEEP_HABIT_ID}}"}]
+				}
+			}
+		},
+		{
+			"name": "Get Sleep Stats by Date Range",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/sleep-logs/stats/overview?start_date=2025-11-30T00:00:00Z&end_date=2025-12-05T23:59:59Z",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "sleep-logs", "stats", "overview"],
+					"query": [
+						{"key": "start_date", "value": "2025-11-30T00:00:00Z"},
+						{"key": "end_date", "value": "2025-12-05T23:59:59Z"}
+					]
+				}
+			}
+		}
+	],
+	"variable": [
+		{"key": "LIFESTYLE_URL", "value": "http://localhost:8001", "type": "string"},
+		{"key": "USER_ID", "value": "test-user-123", "type": "string"},
+		{"key": "SLEEP_HABIT_ID", "value": "", "type": "string"},
+		{"key": "SLEEP_LOG_ID", "value": "", "type": "string"}
+	]
+}

@@ -1,0 +1,197 @@
+{
+	"info": {
+		"name": "Phase 4.6 - Study Habit",
+		"description": "Study habit tracking with stickiness factor (schedule adherence) and flow state monitoring",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create High Flow State Study Log",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{STUDY_HABIT_ID}}\",\n  \"scheduled_start\": \"2025-12-04T14:00:00Z\",\n  \"scheduled_end\": \"2025-12-04T16:00:00Z\",\n  \"actual_start\": \"2025-12-04T14:05:00Z\",\n  \"actual_end\": \"2025-12-04T16:05:00Z\",\n  \"flow_state_score\": 9,\n  \"interruption_count\": 0,\n  \"distraction_sources\": [],\n  \"energy_level_start\": 8,\n  \"energy_level_end\": 7,\n  \"mental_clarity\": 9,\n  \"motivation_level\": 9,\n  \"subject\": \"Machine Learning Algorithms\",\n  \"study_method\": \"practice_problems\",\n  \"break_count\": 1,\n  \"break_duration\": 10,\n  \"location\": \"library\",\n  \"noise_level\": \"quiet\",\n  \"used_music\": true,\n  \"music_type\": \"lo-fi\",\n  \"caffeine_before_study\": true,\n  \"meal_timing\": \"2_hours_ago\",\n  \"sleep_quality_last_night\": 8,\n  \"stress_level\": 3,\n  \"retention_confidence\": 9,\n  \"satisfaction_level\": 9,\n  \"would_repeat_conditions\": true,\n  \"notes\": \"Perfect deep focus session!\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs"]
+				}
+			}
+		},
+		{
+			"name": "Create Interrupted Study Session",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{STUDY_HABIT_ID}}\",\n  \"scheduled_start\": \"2025-12-03T10:00:00Z\",\n  \"scheduled_end\": \"2025-12-03T12:00:00Z\",\n  \"actual_start\": \"2025-12-03T10:00:00Z\",\n  \"actual_end\": \"2025-12-03T12:30:00Z\",\n  \"flow_state_score\": 4,\n  \"interruption_count\": 5,\n  \"distraction_sources\": [\"phone\", \"notifications\", \"people\"],\n  \"energy_level_start\": 6,\n  \"energy_level_end\": 4,\n  \"mental_clarity\": 5,\n  \"motivation_level\": 5,\n  \"subject\": \"Statistics\",\n  \"study_method\": \"reading\",\n  \"break_count\": 2,\n  \"break_duration\": 20,\n  \"location\": \"home\",\n  \"noise_level\": \"moderate\",\n  \"used_music\": false,\n  \"caffeine_before_study\": false,\n  \"meal_timing\": \"just_ate\",\n  \"sleep_quality_last_night\": 5,\n  \"stress_level\": 7,\n  \"retention_confidence\": 4,\n  \"satisfaction_level\": 3,\n  \"would_repeat_conditions\": false,\n  \"notes\": \"Too many distractions at home, couldn't focus\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs"]
+				}
+			}
+		},
+		{
+			"name": "Create Procrastinated Study Log",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{STUDY_HABIT_ID}}\",\n  \"scheduled_start\": \"2025-12-02T09:00:00Z\",\n  \"scheduled_end\": \"2025-12-02T11:00:00Z\",\n  \"actual_start\": \"2025-12-02T10:30:00Z\",\n  \"actual_end\": \"2025-12-02T11:45:00Z\",\n  \"flow_state_score\": 5,\n  \"interruption_count\": 2,\n  \"distraction_sources\": [\"phone\", \"social_media\"],\n  \"energy_level_start\": 4,\n  \"energy_level_end\": 3,\n  \"mental_clarity\": 4,\n  \"motivation_level\": 3,\n  \"subject\": \"Calculus\",\n  \"study_method\": \"video_lectures\",\n  \"break_count\": 0,\n  \"break_duration\": 0,\n  \"location\": \"home\",\n  \"noise_level\": \"quiet\",\n  \"used_music\": false,\n  \"caffeine_before_study\": false,\n  \"meal_timing\": \"hungry\",\n  \"sleep_quality_last_night\": 4,\n  \"stress_level\": 6,\n  \"retention_confidence\": 5,\n  \"satisfaction_level\": 4,\n  \"would_repeat_conditions\": false,\n  \"notes\": \"Started 90 minutes late, felt rushed and unmotivated\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs"]
+				}
+			}
+		},
+		{
+			"name": "Create Task-Linked Study Session",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{STUDY_HABIT_ID}}\",\n  \"scheduled_start\": \"2025-12-01T15:00:00Z\",\n  \"scheduled_end\": \"2025-12-01T17:00:00Z\",\n  \"actual_start\": \"2025-12-01T15:00:00Z\",\n  \"actual_end\": \"2025-12-01T17:10:00Z\",\n  \"task_id\": \"task-123-from-scheduler\",\n  \"task_completed\": true,\n  \"completion_quality\": 8,\n  \"flow_state_score\": 8,\n  \"interruption_count\": 1,\n  \"distraction_sources\": [\"thoughts\"],\n  \"energy_level_start\": 7,\n  \"energy_level_end\": 6,\n  \"mental_clarity\": 8,\n  \"motivation_level\": 8,\n  \"subject\": \"Data Structures\",\n  \"study_method\": \"practice_problems\",\n  \"break_count\": 1,\n  \"break_duration\": 10,\n  \"location\": \"library\",\n  \"noise_level\": \"quiet\",\n  \"used_music\": true,\n  \"music_type\": \"classical\",\n  \"caffeine_before_study\": true,\n  \"meal_timing\": \"1-2_hours_ago\",\n  \"sleep_quality_last_night\": 7,\n  \"stress_level\": 4,\n  \"retention_confidence\": 8,\n  \"satisfaction_level\": 8,\n  \"would_repeat_conditions\": true,\n  \"notes\": \"Completed task from scheduler, good focus\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs"]
+				}
+			}
+		},
+		{
+			"name": "Get All Study Logs",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs"]
+				}
+			}
+		},
+		{
+			"name": "Get Study Logs by Habit",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs?habit_id={{STUDY_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs"],
+					"query": [{"key": "habit_id", "value": "{{STUDY_HABIT_ID}}"}]
+				}
+			}
+		},
+		{
+			"name": "Get Study Logs by Task ID",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs?task_id=task-123-from-scheduler",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs"],
+					"query": [{"key": "task_id", "value": "task-123-from-scheduler"}]
+				}
+			}
+		},
+		{
+			"name": "Get Study Log by ID",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs/{{STUDY_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs", "{{STUDY_LOG_ID}}"]
+				}
+			}
+		},
+		{
+			"name": "Update Study Log",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"flow_state_score\": 7,\n  \"retention_confidence\": 7,\n  \"notes\": \"Actually retained less than I thought\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs/{{STUDY_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs", "{{STUDY_LOG_ID}}"]
+				}
+			}
+		},
+		{
+			"name": "Delete Study Log",
+			"request": {
+				"method": "DELETE",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs/{{STUDY_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs", "{{STUDY_LOG_ID}}"]
+				}
+			}
+		},
+		{
+			"name": "Get Study Statistics",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs/stats/overview",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs", "stats", "overview"]
+				}
+			}
+		},
+		{
+			"name": "Get Study Stats by Habit",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/study-logs/stats/overview?habit_id={{STUDY_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "study-logs", "stats", "overview"],
+					"query": [{"key": "habit_id", "value": "{{STUDY_HABIT_ID}}"}]
+				}
+			}
+		}
+	],
+	"variable": [
+		{"key": "LIFESTYLE_URL", "value": "http://localhost:8001", "type": "string"},
+		{"key": "USER_ID", "value": "test-user-123", "type": "string"},
+		{"key": "STUDY_HABIT_ID", "value": "", "type": "string"},
+		{"key": "STUDY_LOG_ID", "value": "", "type": "string"}
+	]
+}

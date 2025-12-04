@@ -38,4 +38,5 @@ app.listen(PORT, () => {
   console.log(`✅ Scheduler Service running on port ${PORT}`);
   console.log(`📋 Task Management API ready at http://localhost:${PORT}/api/tasks`);
   console.log(`📁 Category API ready at http://localhost:${PORT}/api/categories`);
+  console.log(`📅 Calendar Events API ready at http://localhost:${PORT}/api/events`);
 });

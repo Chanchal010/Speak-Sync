@@ -19,7 +19,7 @@ export interface CreateTaskDTO {
 
 export interface UpdateTaskDTO {
   title?: string;
-  description?: string;
+  description?: string | null;
   categoryId?: string | null;
   priority?: 'VI' | 'MI' | 'NI';
   status?: 'pending' | 'in_progress' | 'completed' | 'cancelled';

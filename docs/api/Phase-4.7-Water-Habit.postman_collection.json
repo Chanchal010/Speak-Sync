@@ -1,0 +1,184 @@
+{
+	"info": {
+		"name": "Phase 4.7 - Water Habit",
+		"description": "Water intake tracking with cognitive fog detection and Armstrong Scale hydration monitoring",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Optimal Hydration Log",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{WATER_HABIT_ID}}\",\n  \"intake_volume\": 500,\n  \"intake_source\": \"water\",\n  \"urine_color\": 2,\n  \"thirst_intensity\": 3,\n  \"cognitive_fog\": false,\n  \"headache_present\": false,\n  \"dry_mouth\": false,\n  \"fatigue_level\": 3,\n  \"dizziness\": false,\n  \"energy_level\": 8,\n  \"mental_clarity\": 9,\n  \"caffeine_intake\": 0,\n  \"activity_level\": \"light_activity\",\n  \"temperature\": \"comfortable\",\n  \"humidity\": \"normal\",\n  \"body_weight\": 70,\n  \"notes\": \"Well hydrated, feeling great!\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs"]
+				}
+			}
+		},
+		{
+			"name": "Create Dehydrated with Cognitive Fog",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{WATER_HABIT_ID}}\",\n  \"intake_volume\": 250,\n  \"intake_source\": \"water\",\n  \"urine_color\": 6,\n  \"thirst_intensity\": 8,\n  \"cognitive_fog\": true,\n  \"headache_present\": true,\n  \"dry_mouth\": true,\n  \"fatigue_level\": 7,\n  \"dizziness\": false,\n  \"energy_level\": 4,\n  \"mental_clarity\": 3,\n  \"caffeine_intake\": 0,\n  \"activity_level\": \"sedentary\",\n  \"temperature\": \"warm\",\n  \"humidity\": \"dry\",\n  \"time_since_last_intake\": 240,\n  \"notes\": \"Haven't drunk water in 4 hours, feeling foggy and tired\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs"]
+				}
+			}
+		},
+		{
+			"name": "Create Caffeine Diuretic Effect",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{WATER_HABIT_ID}}\",\n  \"intake_volume\": 300,\n  \"intake_source\": \"coffee\",\n  \"urine_color\": 5,\n  \"thirst_intensity\": 6,\n  \"cognitive_fog\": false,\n  \"headache_present\": false,\n  \"dry_mouth\": true,\n  \"fatigue_level\": 5,\n  \"energy_level\": 7,\n  \"mental_clarity\": 7,\n  \"caffeine_intake\": 190,\n  \"activity_level\": \"sedentary\",\n  \"temperature\": \"comfortable\",\n  \"notes\": \"Two coffees in the morning, need more water\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs"]
+				}
+			}
+		},
+		{
+			"name": "Create Post-Exercise Hydration",
+			"request": {
+				"method": "POST",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{WATER_HABIT_ID}}\",\n  \"intake_volume\": 750,\n  \"intake_source\": \"water\",\n  \"urine_color\": 4,\n  \"thirst_intensity\": 9,\n  \"cognitive_fog\": false,\n  \"headache_present\": false,\n  \"fatigue_level\": 6,\n  \"energy_level\": 6,\n  \"physical_performance\": 7,\n  \"mental_clarity\": 7,\n  \"caffeine_intake\": 0,\n  \"activity_level\": \"intense_exercise\",\n  \"exercise_duration\": 60,\n  \"sweat_level\": \"heavy\",\n  \"temperature\": \"hot\",\n  \"humidity\": \"humid\",\n  \"body_weight\": 70,\n  \"notes\": \"Rehydrating after intense workout\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs"]
+				}
+			}
+		},
+		{
+			"name": "Get All Water Logs",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs"]
+				}
+			}
+		},
+		{
+			"name": "Get Water Logs by Habit",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs?habit_id={{WATER_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs"],
+					"query": [{"key": "habit_id", "value": "{{WATER_HABIT_ID}}"}]
+				}
+			}
+		},
+		{
+			"name": "Get Water Log by ID",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs/{{WATER_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs", "{{WATER_LOG_ID}}"]
+				}
+			}
+		},
+		{
+			"name": "Update Water Log",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{"key": "Content-Type", "value": "application/json"},
+					{"key": "X-User-Id", "value": "{{USER_ID}}"}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"cognitive_fog\": false,\n  \"energy_level\": 7,\n  \"notes\": \"Feeling better after drinking more water\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs/{{WATER_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs", "{{WATER_LOG_ID}}"]
+				}
+			}
+		},
+		{
+			"name": "Delete Water Log",
+			"request": {
+				"method": "DELETE",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs/{{WATER_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs", "{{WATER_LOG_ID}}"]
+				}
+			}
+		},
+		{
+			"name": "Get Water Statistics",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs/stats/overview",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs", "stats", "overview"]
+				}
+			}
+		},
+		{
+			"name": "Get Water Stats by Habit",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/water-logs/stats/overview?habit_id={{WATER_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "water-logs", "stats", "overview"],
+					"query": [{"key": "habit_id", "value": "{{WATER_HABIT_ID}}"}]
+				}
+			}
+		}
+	],
+	"variable": [
+		{"key": "LIFESTYLE_URL", "value": "http://localhost:8001", "type": "string"},
+		{"key": "USER_ID", "value": "test-user-123", "type": "string"},
+		{"key": "WATER_HABIT_ID", "value": "", "type": "string"},
+		{"key": "WATER_LOG_ID", "value": "", "type": "string"}
+	]
+}

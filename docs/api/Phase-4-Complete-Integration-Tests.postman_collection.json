@@ -1,0 +1,206 @@
+{
+	"info": {
+		"name": "Phase 4 - Complete Integration Tests",
+		"description": "End-to-end testing across all 6 habit types with full workflow validation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Habits Management",
+			"item": [
+				{
+					"name": "Create Food Habit",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "X-User-Id", "value": "{{USER_ID}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Healthy Eating\",\n  \"habit_type\": \"food\",\n  \"target_value\": 3,\n  \"target_unit\": \"meals\",\n  \"frequency\": \"daily\"\n}"
+						},
+						"url": "{{LIFESTYLE_URL}}/api/habits"
+					}
+				},
+				{
+					"name": "Get All Habits",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": "{{LIFESTYLE_URL}}/api/habits"
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Logging Data",
+			"item": [
+				{
+					"name": "Log Food",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "X-User-Id", "value": "{{USER_ID}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"habit_id\": \"{{HABIT_ID}}\",\n  \"meal_type\": \"breakfast\",\n  \"food_items\": [\"oatmeal\", \"banana\"],\n  \"calories\": 350,\n  \"satisfaction_level\": 8\n}"
+						},
+						"url": "{{LIFESTYLE_URL}}/api/food-logs"
+					}
+				},
+				{
+					"name": "Log Sleep",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "X-User-Id", "value": "{{USER_ID}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"habit_id\": \"{{SLEEP_HABIT_ID}}\",\n  \"bedtime\": \"2025-12-04T23:00:00\",\n  \"wake_time\": \"2025-12-05T07:00:00\",\n  \"duration\": 8.0,\n  \"sleep_quality\": 8\n}"
+						},
+						"url": "{{LIFESTYLE_URL}}/api/sleep-logs"
+					}
+				},
+				{
+					"name": "Log Water",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "X-User-Id", "value": "{{USER_ID}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"habit_id\": \"{{WATER_HABIT_ID}}\",\n  \"intake_volume\": 500,\n  \"urine_color\": 2,\n  \"cognitive_fog\": false,\n  \"energy_level\": 8\n}"
+						},
+						"url": "{{LIFESTYLE_URL}}/api/water-logs"
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Statistics",
+			"item": [
+				{
+					"name": "Food Statistics",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": "{{LIFESTYLE_URL}}/api/food-logs/stats/overview"
+					}
+				},
+				{
+					"name": "Sleep Statistics",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": "{{LIFESTYLE_URL}}/api/sleep-logs/stats/overview"
+					}
+				},
+				{
+					"name": "Water Statistics",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": "{{LIFESTYLE_URL}}/api/water-logs/stats/overview"
+					}
+				},
+				{
+					"name": "Study Statistics",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": "{{LIFESTYLE_URL}}/api/study-logs/stats/overview"
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Analytics",
+			"item": [
+				{
+					"name": "Get All Correlations",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": "{{LIFESTYLE_URL}}/api/analytics/correlations"
+					}
+				},
+				{
+					"name": "Get Recent Week Correlations",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": {
+							"raw": "{{LIFESTYLE_URL}}/api/analytics/correlations?start_date=2025-11-27T00:00:00",
+							"host": ["{{LIFESTYLE_URL}}"],
+							"path": ["api", "analytics", "correlations"],
+							"query": [{"key": "start_date", "value": "2025-11-27T00:00:00"}]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Export",
+			"item": [
+				{
+					"name": "Export All as JSON",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": "{{LIFESTYLE_URL}}/api/export/json"
+					}
+				},
+				{
+					"name": "Export All as CSV",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": "{{LIFESTYLE_URL}}/api/export/csv"
+					}
+				},
+				{
+					"name": "Export Sleep + Water",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+						"url": {
+							"raw": "{{LIFESTYLE_URL}}/api/export/json?habit_types=sleep&habit_types=water",
+							"host": ["{{LIFESTYLE_URL}}"],
+							"path": ["api", "export", "json"],
+							"query": [
+								{"key": "habit_types", "value": "sleep"},
+								{"key": "habit_types", "value": "water"}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "6. Health Check",
+			"item": [
+				{
+					"name": "API Health",
+					"request": {
+						"method": "GET",
+						"url": "{{LIFESTYLE_URL}}/health"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "LIFESTYLE_URL", "value": "http://localhost:8001", "type": "string"},
+		{"key": "USER_ID", "value": "test-user-123", "type": "string"},
+		{"key": "HABIT_ID", "value": "", "type": "string"},
+		{"key": "SLEEP_HABIT_ID", "value": "", "type": "string"},
+		{"key": "WATER_HABIT_ID", "value": "", "type": "string"}
+	]
+}

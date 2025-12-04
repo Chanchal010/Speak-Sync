@@ -1,0 +1,11 @@
+{
+  "habit_type": "exercise",
+  "name": "Morning Workout",
+  "description": "Daily exercise routine",
+  "color": "#FF5722",
+  "icon": "💪",
+  "config": {
+    "target_workouts": 5,
+    "preferred_types": ["HIIT", "Yoga"]
+  }
+}

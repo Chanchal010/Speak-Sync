@@ -1,0 +1,15 @@
+{
+  "habit_id": "69319019500d73618f758473",
+  "meal_type": "breakfast",
+  "food_items": ["Oatmeal", "Banana", "Almonds", "Honey"],
+  "portion_size": "medium",
+  "calories": 350,
+  "hunger_level": 7,
+  "satisfaction_level": 8,
+  "eating_speed": "moderate",
+  "emotional_state": "neutral",
+  "location": "home",
+  "social_context": "alone",
+  "distraction_level": 3,
+  "notes": "Felt energized after eating"
+}
