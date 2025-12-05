@@ -686,6 +686,9 @@ async function parseTaskIntent(userInput: string, userContext: any) {
 }
 ```
 
+i also add something the ai needs means have to how react  or behaviour things - in images so observe every things and implement like run smoothly and also one more thing to discuss which this connections the realtime right so if have to use grpc then use okay. 
+
+so properly analyze and make you as a engineer steps means after all observation separate in parts the works because it's very huge i dont think you make it one time so properly observe how and what feature have there so make plans of each feat separately then execute them separately so that properly done . so i give you things take time and first plan and then execute it .
 ---
 
 ## 🎯 Phase 7: Production Deployment (Week 7-8: 7-10 days)
