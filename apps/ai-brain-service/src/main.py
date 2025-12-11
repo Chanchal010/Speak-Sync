@@ -14,8 +14,10 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent.parent.parent.parent / ".env"
 load_dotenv(env_path)
 
-from src.api.routes import voice, chat, conversation
+from src.api.routes import voice, chat, conversation, scheduling, habits, memory
 from src.database.connection import Database, RedisClient
+from src.database.vector_operations import VectorOperations
+from src.services.vector_memory_service import VectorMemoryService
 
 # Configure logging
 logging.basicConfig(
@@ -27,6 +29,8 @@ logger = logging.getLogger(__name__)
 # Database connections
 db: Database = None
 redis: RedisClient = None
+vector_ops: VectorOperations = None
+vector_memory_service: VectorMemoryService = None
 
 
 @asynccontextmanager
@@ -34,7 +38,7 @@ async def lifespan(app: FastAPI):
     """
     Startup and shutdown events
     """
-    global db, redis
+    global db, redis, vector_ops, vector_memory_service
     
     # Startup
     logger.info("Starting AI Brain Service...")
@@ -52,6 +56,22 @@ async def lifespan(app: FastAPI):
                 max_size=15
             )
             logger.info("✓ PostgreSQL connected")
+            
+            # Initialize vector operations
+            vector_ops = VectorOperations(db.pool)
+            await vector_ops.initialize_vector_tables()
+            logger.info("✓ Vector tables initialized")
+            
+            # Initialize vector memory service
+            openai_api_key = os.getenv("OPENAI_API_KEY")
+            if openai_api_key:
+                vector_memory_service = VectorMemoryService(
+                    vector_ops=vector_ops,
+                    openai_api_key=openai_api_key
+                )
+                logger.info("✓ Vector memory service ready")
+            else:
+                logger.warning("⚠ OpenAI API key not configured - vector memory disabled")
         else:
             logger.warning("⚠ PostgreSQL not configured - running in STT-only mode")
         
@@ -104,6 +124,9 @@ app.add_middleware(
 app.include_router(voice.router)
 app.include_router(chat.router)
 app.include_router(conversation.router)
+app.include_router(scheduling.router)
+app.include_router(habits.router)
+app.include_router(memory.router)
 
 
 @app.get("/")
@@ -118,8 +141,9 @@ async def root():
             "Text-to-Speech (OpenAI TTS)",
             "Natural Language Understanding (OpenRouter LLM)",
             "Complete Voice Conversation (STT → NLU → TTS)",
-            "Smart Scheduling - Coming Soon",
-            "Habit Predictions - Coming Soon"
+            "Smart Scheduling AI (ML-powered)",
+            "Habit Prediction Engine (Behavioral Analytics)",
+            "Vector Memory System (Semantic Search & Context Retrieval)"
         ]
     }
 
