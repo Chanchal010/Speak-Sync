@@ -1,0 +1,100 @@
+name: Deploy to ExCloud
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 210.79.129.61 >> ~/.ssh/known_hosts
+          
+      - name: Deploy to Server
+        run: |
+          ssh root@210.79.129.61 << 'ENDSSH'
+            set -e
+            
+            echo "🚀 Starting deployment..."
+            
+            # Navigate to project
+            cd /opt/speak-sync
+            
+            # Pull latest code
+            echo "⬇️  Pulling latest code..."
+            git fetch origin
+            git reset --hard origin/main
+            
+            # Install dependencies
+            echo "📦 Installing dependencies..."
+            pnpm install
+            
+            # Build services
+            echo "🔨 Building services..."
+            pnpm build
+            
+            # Update Python dependencies
+            echo "🐍 Updating Python services..."
+            
+            # AI Brain
+            cd apps/ai-brain-service
+            if [ -d "venv" ]; then
+              source venv/bin/activate
+              pip install --upgrade pip
+              pip install -r requirements.txt
+              deactivate
+            fi
+            cd ../..
+            
+            # Lifestyle
+            cd apps/lifestyle-service
+            if [ -d "venv" ]; then
+              source venv/bin/activate
+              pip install --upgrade pip
+              pip install -r requirements.txt
+              deactivate
+            fi
+            cd ../..
+            
+            # Restart services
+            echo "♻️  Restarting services..."
+            pm2 restart all
+            
+            # Wait for startup
+            sleep 10
+            
+            # Health check
+            echo "🏥 Health check..."
+            if curl -sf http://localhost:3000/health > /dev/null; then
+              echo "✅ Deployment successful!"
+              pm2 list
+            else
+              echo "❌ Health check failed!"
+              pm2 logs --lines 50
+              exit 1
+            fi
+          ENDSSH
+          
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "✅ Deployment to 210.79.129.61 completed successfully!"
+          
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed! Check the logs above."
+          exit 1

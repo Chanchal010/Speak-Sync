@@ -21,5 +21,7 @@ export const jwtConfig: JWTConfiguration = {
 
 export const serviceConfig = {
     schedulerUrl: process.env.SCHEDULER_SERVICE_URL || 'http://localhost:3001',
+    aiBrainUrl: process.env.AI_BRAIN_SERVICE_URL || 'http://localhost:8000',
+    lifestyleUrl: process.env.LIFESTYLE_SERVICE_URL || 'http://localhost:8001',
     internalApiKey: process.env.INTERNAL_API_KEY || 'change-this-in-production',
 };

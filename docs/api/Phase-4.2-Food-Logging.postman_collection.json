@@ -1,0 +1,385 @@
+{
+	"info": {
+		"name": "Phase 4.2 - Food Logging",
+		"description": "Food habit logging with detailed meal tracking and AI-ready behavioral data",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Breakfast Log",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{FOOD_HABIT_ID}}\",\n  \"meal_type\": \"breakfast\",\n  \"food_items\": [\"Oatmeal\", \"Banana\", \"Almonds\", \"Honey\"],\n  \"portion_size\": \"medium\",\n  \"calories\": 350,\n  \"hunger_level\": 7,\n  \"satisfaction_level\": 8,\n  \"eating_speed\": \"moderate\",\n  \"emotional_state\": \"neutral\",\n  \"location\": \"home\",\n  \"social_context\": \"alone\",\n  \"distraction_level\": 3,\n  \"notes\": \"Felt energized after eating\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs?habit_id={{FOOD_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs"],
+					"query": [
+						{
+							"key": "habit_id",
+							"value": "{{FOOD_HABIT_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Lunch Log",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{FOOD_HABIT_ID}}\",\n  \"meal_type\": \"lunch\",\n  \"food_items\": [\"Grilled Chicken\", \"Quinoa\", \"Broccoli\", \"Olive Oil\"],\n  \"portion_size\": \"large\",\n  \"calories\": 550,\n  \"hunger_level\": 8,\n  \"satisfaction_level\": 9,\n  \"eating_speed\": \"moderate\",\n  \"emotional_state\": \"happy\",\n  \"location\": \"work\",\n  \"social_context\": \"colleagues\",\n  \"distraction_level\": 5,\n  \"notes\": \"Team lunch, good conversation\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs?habit_id={{FOOD_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs"],
+					"query": [
+						{
+							"key": "habit_id",
+							"value": "{{FOOD_HABIT_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Dinner Log",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{FOOD_HABIT_ID}}\",\n  \"meal_type\": \"dinner\",\n  \"food_items\": [\"Salmon\", \"Sweet Potato\", \"Asparagus\"],\n  \"portion_size\": \"medium\",\n  \"calories\": 450,\n  \"hunger_level\": 6,\n  \"satisfaction_level\": 9,\n  \"eating_speed\": \"slow\",\n  \"emotional_state\": \"relaxed\",\n  \"location\": \"home\",\n  \"social_context\": \"family\",\n  \"distraction_level\": 2,\n  \"notes\": \"Mindful eating with family\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs?habit_id={{FOOD_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs"],
+					"query": [
+						{
+							"key": "habit_id",
+							"value": "{{FOOD_HABIT_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Snack Log - Stressed Eating",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"habit_id\": \"{{FOOD_HABIT_ID}}\",\n  \"meal_type\": \"snack\",\n  \"food_items\": [\"Chips\", \"Chocolate Bar\"],\n  \"portion_size\": \"large\",\n  \"calories\": 400,\n  \"hunger_level\": 3,\n  \"satisfaction_level\": 5,\n  \"eating_speed\": \"fast\",\n  \"emotional_state\": \"stressed\",\n  \"location\": \"work\",\n  \"social_context\": \"alone\",\n  \"distraction_level\": 8,\n  \"notes\": \"Stress eating while working on deadline\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs?habit_id={{FOOD_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs"],
+					"query": [
+						{
+							"key": "habit_id",
+							"value": "{{FOOD_HABIT_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Food Logs",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Food Logs by Habit",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs?habit_id={{FOOD_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs"],
+					"query": [
+						{
+							"key": "habit_id",
+							"value": "{{FOOD_HABIT_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Food Logs by Meal Type",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs?meal_type=breakfast",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs"],
+					"query": [
+						{
+							"key": "meal_type",
+							"value": "breakfast"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Food Logs by Date Range",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs?start_date=2025-12-01T00:00:00Z&end_date=2025-12-31T23:59:59Z",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs"],
+					"query": [
+						{
+							"key": "start_date",
+							"value": "2025-12-01T00:00:00Z"
+						},
+						{
+							"key": "end_date",
+							"value": "2025-12-31T23:59:59Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Food Log by ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs/{{FOOD_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs", "{{FOOD_LOG_ID}}"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Food Log",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"satisfaction_level\": 10,\n  \"notes\": \"Actually felt amazing after this meal!\"\n}"
+				},
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs/{{FOOD_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs", "{{FOOD_LOG_ID}}"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Food Log",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs/{{FOOD_LOG_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs", "{{FOOD_LOG_ID}}"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Food Log Statistics",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs/stats/overview",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs", "stats", "overview"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Food Log Stats by Habit",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs/stats/overview?habit_id={{FOOD_HABIT_ID}}",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs", "stats", "overview"],
+					"query": [
+						{
+							"key": "habit_id",
+							"value": "{{FOOD_HABIT_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Food Log Stats by Date Range",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-User-Id",
+						"value": "{{USER_ID}}"
+					}
+				],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/food-logs/stats/overview?start_date=2025-12-01T00:00:00Z&end_date=2025-12-07T23:59:59Z",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "food-logs", "stats", "overview"],
+					"query": [
+						{
+							"key": "start_date",
+							"value": "2025-12-01T00:00:00Z"
+						},
+						{
+							"key": "end_date",
+							"value": "2025-12-07T23:59:59Z"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "LIFESTYLE_URL",
+			"value": "http://localhost:8001",
+			"type": "string"
+		},
+		{
+			"key": "USER_ID",
+			"value": "test-user-123",
+			"type": "string"
+		},
+		{
+			"key": "FOOD_HABIT_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "FOOD_LOG_ID",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

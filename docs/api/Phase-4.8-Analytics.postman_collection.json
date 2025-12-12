@@ -1,0 +1,59 @@
+{
+	"info": {
+		"name": "Phase 4.8 - Analytics",
+		"description": "Cross-habit correlation analysis for behavioral insights",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get All Correlations",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/analytics/correlations",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "analytics", "correlations"]
+				},
+				"description": "Analyze all cross-habit correlations without filters to discover behavioral patterns across all habit types"
+			}
+		},
+		{
+			"name": "Get Correlations with Date Range",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/analytics/correlations?start_date=2025-12-01T00:00:00&end_date=2025-12-31T23:59:59",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "analytics", "correlations"],
+					"query": [
+						{"key": "start_date", "value": "2025-12-01T00:00:00", "description": "Filter logs from this date onwards"},
+						{"key": "end_date", "value": "2025-12-31T23:59:59", "description": "Filter logs until this date"}
+					]
+				},
+				"description": "Analyze correlations for a specific time period (e.g., current month)"
+			}
+		},
+		{
+			"name": "Get Last 7 Days Correlations",
+			"request": {
+				"method": "GET",
+				"header": [{"key": "X-User-Id", "value": "{{USER_ID}}"}],
+				"url": {
+					"raw": "{{LIFESTYLE_URL}}/api/analytics/correlations?start_date=2025-11-27T00:00:00",
+					"host": ["{{LIFESTYLE_URL}}"],
+					"path": ["api", "analytics", "correlations"],
+					"query": [
+						{"key": "start_date", "value": "2025-11-27T00:00:00", "description": "Last 7 days from Dec 4, 2025"}
+					]
+				},
+				"description": "Analyze recent weekly patterns and correlations"
+			}
+		}
+	],
+	"variable": [
+		{"key": "LIFESTYLE_URL", "value": "http://localhost:8001", "type": "string"},
+		{"key": "USER_ID", "value": "test-user-123", "type": "string"}
+	]
+}

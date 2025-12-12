@@ -98,6 +98,9 @@ model Task {
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   
+  // Reminders tracking
+  lastReminderSentAt DateTime? // Last time a reminder was sent for this task
+  
   // Timestamps (essential for AI training)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -114,15 +117,83 @@ model Task {
 }
 
 model Event {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
+  
+  // --- UI FIELDS ---
   title       String
   description String?
   startTime   DateTime
   endTime     DateTime
-  timezone    String   @default("UTC")
-  isRecurring Boolean  @default(false)
+  
+  // Location & timezone
+  location    String?
+  timezone    String    @default("UTC")
+  
+  // All-day events
+  isAllDay    Boolean   @default(false)
+  
+  // Color coding (calendar visualization)
+  colorHex    String?   // Custom color for this event
+  
+  // --- RECURRENCE FIELDS ---
+  isRecurring     Boolean  @default(false)
+  recurrenceRule  String?  // RRULE format: "FREQ=WEEKLY;BYDAY=MO,WE,FR"
+  recurrenceEnd   DateTime? // When recurring series ends
+  parentEventId   String?  // Reference to parent for recurring instances
+  exceptionDates  Json?    // Array of dates to skip: ["2025-12-25", "2026-01-01"]
+  
+  // --- ATTENDEES & COLLABORATION ---
+  attendees   Json?    // [{email: "user@example.com", name: "John", status: "accepted"}]
+  organizerId String?  // Who created/owns the event
+  
+  // --- REMINDERS ---
+  reminders   Json?    // [{minutes: 15, type: "notification"}, {minutes: 1440, type: "email"}]
+  
+  // --- AI TRAINING FIELDS ---
+  
+  // Voice-to-event transcription
+  voiceTranscript String? // "Schedule dentist appointment tomorrow at 2pm"
+  
+  // Meeting type classification
+  eventType   String?  // "meeting", "personal", "social", "appointment", "deadline"
+  
+  // Duration tracking
+  estimatedDuration Int? // Estimated minutes (from voice/AI)
+  
+  // Rescheduling behavior
+  rescheduleCount Int @default(0) // How many times user moved this event
+  
+  // Conflict resolution patterns
+  conflictResolutions Json? // [{conflictWith: "event-id", resolution: "rescheduled", timestamp}]
+  
+  // Attendance patterns (for recurring events)
+  attendancePattern Json? // {attended: 8, skipped: 2, attendance_rate: 0.8}
+  
+  // Context & sentiment
+  sentimentScore  Float? // User mood when creating event
+  contextMetadata Json?  // {created_from: "mobile", time_preference: "morning", weather, etc}
+  
+  // Time preferences learning
+  preferredTimeSlots Json? // {monday: ["09:00-11:00", "14:00-16:00"], tuesday: [...]}
+  
+  // Reminders tracking
+  lastReminderSentAt DateTime? // Last time a reminder was sent for this event
+  
+  // --- RELATIONS & METADATA ---
   userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete to preserve training data
+  
+  @@index([userId])
+  @@index([startTime])
+  @@index([endTime])
+  @@index([isRecurring])
+  @@index([parentEventId])
+  @@index([deletedAt])
+  @@index([userId, startTime, deletedAt]) // Composite for user's calendar query
+  @@index([userId, isRecurring]) // For recurring events lookup
 }

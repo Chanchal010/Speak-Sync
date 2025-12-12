@@ -1,0 +1,10 @@
+{
+  "habit_type": "food",
+  "name": "Healthy Eating",
+  "description": "Track my daily meals",
+  "color": "#4CAF50",
+  "icon": "🍎",
+  "config": {
+    "target_meals": 3
+  }
+}

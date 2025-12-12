@@ -55,7 +55,10 @@ so first do phase 1 properly
 
 ---
 
-## 🎯 Phase 2: Todo Management - Scheduler Service (Week 1: 5-7 days)
+## ✅ Phase 2: Todo Management - Scheduler Service (COMPLETED)
+
+**Status**: ✅ COMPLETE - All features implemented and tested  
+**Duration**: Week 1 (Dec 2-3, 2025)
 
 first analyze the image that is the exact replica of our app so observeb from that 
 
@@ -167,9 +170,15 @@ const TaskSchema = new mongoose.Schema({
 
 ---
 
-## 🎯 Phase 3: Calendar/Events Management (Week 2: 5-7 days)
+---
 
-**Goal**: Complete calendar system with scheduling intelligence
+## ✅ Phase 3: Calendar/Events Management (COMPLETED)
+
+**Goal**: Complete calendar system with scheduling intelligence and AI-ready event tracking
+
+**Status**: ✅ COMPLETE - All features implemented and tested  
+**Duration**: Week 2 (Dec 3, 2025)  
+**Prerequisites**: ✅ Phase 2 complete, Task system operational
 
 ### Features:
 1. **Event CRUD**
@@ -241,6 +250,74 @@ model Event {
 - Store time preferences (morning person vs night owl)
 - Record conflict resolution patterns
 - Save location-based scheduling habits
+
+
+const TaskSchema = new mongoose.Schema({
+
+  // --- UI FIELDS (Visible in your Wireframe) ---
+
+  user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+
+  
+
+  title: { type: String, required: true }, // "Date wise work"
+
+  
+
+  scheduled_date: { type: Date, required: true }, // For the Calendar View
+
+  
+
+  is_completed: { type: Boolean, default: false }, // The "Completion" button
+
+  
+
+  // The "VI / MI / NI" Logic
+
+  priority_level: { 
+
+    type: String, 
+
+    enum: ['VI', 'MI', 'NI'], // Very Important, Moderately Important, Normal/Not Important
+
+    required: true 
+
+  },
+
+  
+
+  // Color Code (Optional: Can be handled on Frontend, but good to store if users customize it)
+
+  ui_color_hex: { type: String, default: '#00FF00' }, // Green (NI) by default
+
+
+
+  // --- AI TRAINING FIELDS (Hidden but Critical) ---
+
+  // needed for the "Report" button and AI Rescheduling
+
+  
+
+  voice_origin_transcript: { type: String }, // "Remind me to pay bills urgently"
+
+  
+
+  predicted_duration_minutes: { type: Number }, // AI guesses how long it takes
+
+  
+
+  actual_completion_timestamp: { type: Date }, // When they actually clicked the button
+
+  
+
+  reschedule_count: { type: Number, default: 0 }, // How many times did they move this?
+
+  
+
+  sentiment_context: { type: String } // Was user stressed when setting this?
+
+});
+
 
 ---
 
@@ -357,6 +434,7 @@ GET    /api/logs/:id            - Get log details
 - Record abandonment reasons
 - Collect correlation data (habits that succeed together)
 
+not only this i have my own strucrure judhed on that also because this habbit system far more features in it , so properly analyze and make you as a engineer steps means after all observation separate in parts the works because it's very huge i dont think you make it one time so properly observe how and what feature have there so make plans of each feat separately then execute them separately so that properly done . so i give you things take time and first plan and then execute it .
 ---
 
 ## 🎯 Phase 5: Event-Driven Architecture - RabbitMQ (Week 4: 5-7 days)
@@ -608,6 +686,9 @@ async function parseTaskIntent(userInput: string, userContext: any) {
 }
 ```
 
+i also add something the ai needs means have to how react  or behaviour things - in images so observe every things and implement like run smoothly and also one more thing to discuss which this connections the realtime right so if have to use grpc then use okay. 
+
+so properly analyze and make you as a engineer steps means after all observation separate in parts the works because it's very huge i dont think you make it one time so properly observe how and what feature have there so make plans of each feat separately then execute them separately so that properly done . so i give you things take time and first plan and then execute it .
 ---
 
 ## 🎯 Phase 7: Production Deployment (Week 7-8: 7-10 days)

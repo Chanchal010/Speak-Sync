@@ -5,13 +5,19 @@ import cors from 'cors';
 import morgan from 'morgan';
 // import rateLimit from 'express-rate-limit'; // Commented out for now
 import authRoutes from './routes/auth.routes.js';
+import aiBrainRoutes from './routes/ai-brain.routes.js';
+import lifestyleRoutes from './routes/lifestyle.routes.js';
 import { errorHandler } from './middleware/error-handler.middleware.js';
+import { serviceRegistry } from './services/service-registry.service.js';
 
 dotenv.config();
 
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize service registry and start health checks
+serviceRegistry.startHealthChecks();
 
 // Security middleware
 app.use(helmet());
@@ -38,15 +44,65 @@ app.use(express.urlencoded({ extended: true }));
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', service: 'gateway' });
+  const systemHealth = serviceRegistry.getSystemHealth();
+  res.json({
+    status: systemHealth.status,
+    service: 'gateway',
+    timestamp: new Date().toISOString(),
+    services: systemHealth.services.map(s => ({
+      name: s.name,
+      status: s.status,
+      responseTime: s.responseTime,
+      lastChecked: s.lastChecked
+    })),
+    summary: {
+      healthy: systemHealth.healthyCount,
+      total: systemHealth.totalCount
+    }
+  });
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({
+    service: 'Speak-Sync Gateway',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      auth: '/api/auth',
+      ai: '/api/gateway/*',
+      lifestyle: '/api/gateway/lifestyle/*'
+    }
+  });
 });
 
 // API routes (rate limiter commented out for now)
 app.use('/api/auth', authRoutes);
+app.use('/api/gateway', aiBrainRoutes);
+app.use('/api/gateway/lifestyle', lifestyleRoutes);
 
 // Global error handler (must be last)
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Gateway Service running on port ${PORT}`);
+const server = app.listen(PORT, () => {
+  console.log(`✓ Gateway Service running on port ${PORT}`);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  serviceRegistry.stopHealthChecks();
+  server.close(() => {
+    console.log('Gateway Service stopped');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully...');
+  serviceRegistry.stopHealthChecks();
+  server.close(() => {
+    console.log('Gateway Service stopped');
+    process.exit(0);
+  });
 });
