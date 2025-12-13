@@ -182,6 +182,25 @@ export class AuthService {
             name: user.name,
             role: user.role,
             isActive: user.isActive,
+            profilePicture: user.profilePicture,
+            lastLoginAt: user.lastLoginAt,
+            createdAt: user.createdAt,
+        };
+    }
+
+    /**
+     * Update user profile
+     */
+    async updateProfile(userId: string, data: { name?: string; email?: string; profilePicture?: string | null }) {
+        const user = await schedulerService.updateUser(userId, data);
+
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            isActive: user.isActive,
+            profilePicture: user.profilePicture,
             lastLoginAt: user.lastLoginAt,
             createdAt: user.createdAt,
         };

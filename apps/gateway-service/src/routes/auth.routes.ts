@@ -12,5 +12,6 @@ router.post('/refresh', authController.refreshToken.bind(authController));
 // Protected routes (require authentication)
 router.post('/logout', authenticate, authController.logout.bind(authController));
 router.get('/me', authenticate, authController.getMe.bind(authController));
+router.put('/profile', authenticate, authController.updateProfile.bind(authController));
 
 export default router;

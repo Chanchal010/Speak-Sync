@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service.js';
-import { registerSchema, loginSchema, refreshTokenSchema } from '../validation/auth.validation.js';
+import { registerSchema, loginSchema, refreshTokenSchema, updateProfileSchema } from '../validation/auth.validation.js';
 
 export class AuthController {
     /**
@@ -134,6 +134,43 @@ export class AuthController {
                 data: { user },
             });
         } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Update user profile
+     * PUT /api/auth/profile
+     */
+    async updateProfile(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = (req as any).user?.userId;
+
+            if (!userId) {
+                return res.status(401).json({
+                    success: false,
+                    error: 'Unauthorized',
+                });
+            }
+
+            // Validate request body
+            const validatedData = updateProfileSchema.parse(req.body);
+
+            // Update profile
+            const user = await authService.updateProfile(userId, validatedData);
+
+            res.json({
+                success: true,
+                data: { user },
+            });
+        } catch (error: any) {
+            // Handle duplicate email error
+            if (error.response?.status === 409) {
+                return res.status(409).json({
+                    success: false,
+                    error: 'Email already in use',
+                });
+            }
             next(error);
         }
     }

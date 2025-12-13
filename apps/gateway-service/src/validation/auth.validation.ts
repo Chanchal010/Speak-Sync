@@ -26,7 +26,15 @@ export const refreshTokenSchema = z.object({
     refreshToken: z.string().min(1, 'Refresh token is required'),
 });
 
+// Update profile schema
+export const updateProfileSchema = z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long').optional(),
+    email: emailSchema.optional(),
+    profilePicture: z.string().optional().nullable(),
+});
+
 // Export types
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

@@ -9,6 +9,7 @@ export interface User {
     role: string;
     isActive: boolean;
     refreshToken?: string | null;
+    profilePicture?: string | null;
     lastLoginAt?: Date | null;
     createdAt: Date;
     updatedAt: Date;
@@ -26,6 +27,7 @@ export interface UpdateUserDTO {
     email?: string;
     role?: string;
     isActive?: boolean;
+    profilePicture?: string | null;
 }
 
 export class SchedulerService {
