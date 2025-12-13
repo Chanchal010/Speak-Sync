@@ -3,7 +3,7 @@
  * Processes email notification events and sends emails
  */
 import { BaseConsumer } from './base.consumer.js';
-import { RABBITMQ_CONFIG } from '../config/rabbitmq';
+import { RABBITMQ_CONFIG } from '../config/rabbitmq.js';
 import nodemailer from 'nodemailer';
 
 interface EmailNotificationEvent {

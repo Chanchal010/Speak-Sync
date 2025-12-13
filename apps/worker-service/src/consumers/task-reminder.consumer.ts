@@ -3,7 +3,7 @@
  * Processes task reminder events and sends notifications
  */
 import { BaseConsumer } from './base.consumer.js';
-import { RABBITMQ_CONFIG } from '../config/rabbitmq';
+import { RABBITMQ_CONFIG } from '../config/rabbitmq.js';
 import type { TaskDueSoonEvent, EventReminderEvent } from '@speak-sync/event-schemas';
 
 type TaskReminderEvent = TaskDueSoonEvent | EventReminderEvent;

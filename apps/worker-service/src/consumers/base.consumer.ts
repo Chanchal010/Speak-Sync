@@ -3,7 +3,7 @@
  * Abstract class providing common functionality for all RabbitMQ consumers
  */
 import { Channel, ConsumeMessage } from 'amqplib';
-import { rabbitmqConnection } from '../config/connection';
+import { rabbitmqConnection } from '../config/connection.js';
 
 export interface ConsumerOptions {
   queueName: string;

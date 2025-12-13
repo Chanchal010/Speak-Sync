@@ -3,7 +3,7 @@
  * Processes habit streak events (achievements, breaks, milestones)
  */
 import { BaseConsumer } from './base.consumer.js';
-import { RABBITMQ_CONFIG } from '../config/rabbitmq';
+import { RABBITMQ_CONFIG } from '../config/rabbitmq.js';
 import type {
   StreakAchievedEvent,
   StreakBrokenEvent,
