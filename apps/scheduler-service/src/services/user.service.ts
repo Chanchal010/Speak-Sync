@@ -1,8 +1,10 @@
 import argon2 from 'argon2';
 import prisma from '../lib/prisma.js';
 import type { CreateUserInput, UpdateUserInput, UpdateRefreshTokenInput } from '../validation/user.validation.js';
+import { CategoryService } from './category.service.js';
 
 export class UserService {
+    private categoryService = new CategoryService();
     /**
      * Create a new user with hashed password
      */
@@ -33,6 +35,14 @@ export class UserService {
                 updatedAt: true,
             },
         });
+
+        // Create default categories for new user
+        try {
+            await this.categoryService.createDefaultCategories(user.id);
+        } catch (error) {
+            console.error('Failed to create default categories:', error);
+            // Don't fail user creation if categories fail
+        }
 
         return user;
     }
