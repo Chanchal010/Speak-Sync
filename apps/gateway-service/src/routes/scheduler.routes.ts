@@ -22,9 +22,8 @@ const proxyToScheduler = async (req: Request, res: Response, next: NextFunction)
             });
         }
 
-        // Build target URL - use path only, axios will add query params
-        const path = req.path.replace('/api/scheduler', '/api');
-        const targetUrl = `${SCHEDULER_URL}${path}`;
+        // Build target URL - prepend /api to the path (router is mounted at /api/scheduler)
+        const targetUrl = `${SCHEDULER_URL}/api${req.path}`;
 
         // Forward request with user context in headers
         const response = await axios({
