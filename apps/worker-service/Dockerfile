@@ -42,4 +42,4 @@ COPY --from=build /app/apps/worker-service/package.json ./apps/worker-service/
 
 WORKDIR /app/apps/worker-service
 
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/worker.js"]
