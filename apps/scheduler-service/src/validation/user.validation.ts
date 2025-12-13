@@ -26,6 +26,7 @@ export const updateUserSchema = z.object({
     email: emailSchema.optional(),
     role: z.enum(['user', 'admin']).optional(),
     isActive: z.boolean().optional(),
+    profilePicture: z.string().url().optional().nullable(),
 });
 
 // Update refresh token schema

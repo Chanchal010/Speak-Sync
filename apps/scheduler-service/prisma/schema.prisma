@@ -7,16 +7,17 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  name         String
-  password     String // Argon2 hashed password
-  role         String    @default("user") // "user" or "admin"
-  isActive     Boolean   @default(true)
-  refreshToken String? // JWT refresh token
-  lastLoginAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String
+  password       String // Argon2 hashed password
+  role           String    @default("user") // "user" or "admin"
+  isActive       Boolean   @default(true)
+  refreshToken   String? // JWT refresh token
+  profilePicture String? // Profile picture URL or base64 string
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   
   // Relations
   tasks        Task[]
