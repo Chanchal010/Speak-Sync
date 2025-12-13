@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import authRoutes from './routes/auth.routes.js';
 import aiBrainRoutes from './routes/ai-brain.routes.js';
 import lifestyleRoutes from './routes/lifestyle.routes.js';
+import schedulerRoutes from './routes/scheduler.routes.js';
 import { errorHandler } from './middleware/error-handler.middleware.js';
 import { serviceRegistry } from './services/service-registry.service.js';
 
@@ -71,7 +72,8 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       ai: '/api/gateway/*',
-      lifestyle: '/api/gateway/lifestyle/*'
+      lifestyle: '/api/gateway/lifestyle/*',
+      scheduler: '/api/scheduler/*'
     }
   });
 });
@@ -80,6 +82,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/gateway', aiBrainRoutes);
 app.use('/api/gateway/lifestyle', lifestyleRoutes);
+app.use('/api/scheduler', schedulerRoutes);
 
 // Global error handler (must be last)
 app.use(errorHandler);
