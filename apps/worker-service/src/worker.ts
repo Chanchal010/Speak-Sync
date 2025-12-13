@@ -4,13 +4,13 @@
  */
 import dotenv from 'dotenv';
 import express from 'express';
-import { rabbitmqConnection } from './config/connection';
+import { rabbitmqConnection } from './config/connection.js';
 import {
   createTaskReminderConsumer,
   createTaskDueSoonConsumer,
   createHabitStreakConsumer,
   createEmailNotificationConsumer,
-} from './consumers';
+} from './consumers/index.js';
 
 dotenv.config();
 

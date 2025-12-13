@@ -2,7 +2,7 @@
  * Task Reminder Consumer
  * Processes task reminder events and sends notifications
  */
-import { BaseConsumer } from './base.consumer';
+import { BaseConsumer } from './base.consumer.js';
 import { RABBITMQ_CONFIG } from '../config/rabbitmq';
 import type { TaskDueSoonEvent, EventReminderEvent } from '@speak-sync/event-schemas';
 

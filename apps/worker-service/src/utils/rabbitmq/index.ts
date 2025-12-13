@@ -1,4 +1,4 @@
-import RabbitMQConnection from './connection';
+import RabbitMQConnection from './connection.js';
 
 /**
  * RabbitMQ Configuration
