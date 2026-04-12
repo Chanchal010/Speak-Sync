@@ -1,0 +1,413 @@
+Analyzing Speak-Sync...                                         
+
+warning - Unused import: 'package:dio/dio.dart' - flutter\speak_sync_app\lib\core\di\injection.dart:1:8 - unused_import
+warning - Unused import: 'package:flutter_secure_storage/flutter_secure_storage.dart' - flutter\speak_sync_app\lib\core\di\service_locator.dart:2:8 - unused_import
+warning - Unused import: 'package:speak_sync_app/core/storage/secure_storage_service.dart' - flutter\speak_sync_app\lib\core\di\service_locator.dart:3:8 - unused_import
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\network\dio_client.dart:89:15 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\network\dio_client.dart:96:13 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\services\voice_service.dart:81:7 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\services\voice_service.dart:94:7 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\services\voice_service.dart:141:7 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\services\voice_service.dart:166:7 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\services\voice_service.dart:196:7 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\services\voice_service.dart:245:11 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\services\voice_service.dart:260:7 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\core\storage\secure_storage_service.dart:57:5 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\ai\presentation\widgets\ai_voice_button.dart:54:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\ai\presentation\widgets\ai_voice_button.dart:59:46 - deprecated_member_use
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\ai\presentation\widgets\gemini_voice_overlay.dart:133:7 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\ai\presentation\widgets\gemini_voice_overlay.dart:264:11 - avoid_print
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\auth\data\models\user_model.dart:14:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\auth\data\models\user_model.dart:15:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\auth\data\models\user_model.dart:53:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\auth\data\models\user_model.dart:54:6 - invalid_annotation_target
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\auth\data\repositories\auth_repository.dart:162:5 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\auth\data\repositories\auth_repository.dart:170:5 - avoid_print
+warning - The declaration '_showProfileDialog' isn't referenced - flutter\speak_sync_app\lib\features\auth\presentation\login_screen.dart:74:8 - unused_element
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\auth\presentation\login_screen.dart:252:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\auth\presentation\login_screen.dart:267:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\auth\presentation\register_screen.dart:48:72 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\auth\presentation\register_screen.dart:54:74 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\auth\presentation\register_screen.dart:272:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\auth\presentation\register_screen.dart:397:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\auth\presentation\register_screen.dart:412:59 - deprecated_member_use
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\auth\presentation\splash_screen.dart:33:7 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\auth\presentation\splash_screen.dart:38:11 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\auth\presentation\splash_screen.dart:40:11 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\auth\presentation\splash_screen.dart:44:11 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\auth\presentation\splash_screen.dart:49:9 - avoid_print
+   info - Don't invoke 'print' in production code - flutter\speak_sync_app\lib\features\auth\presentation\splash_screen.dart:54:7 - avoid_print
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:97:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:97:43 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:98:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:98:48 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:99:15 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use component accessors like .r or .g, or toARGB32 for an explicit conversion - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:99:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:259:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:283:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:297:75 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:334:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:366:63 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:389:65 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:395:67 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:403:67 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:435:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:477:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:479:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:490:66 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:503:66 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:539:59 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\calendar_screen.dart:554:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\widgets\add_event_bottom_sheet.dart:334:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\widgets\add_event_bottom_sheet.dart:359:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\widgets\add_event_bottom_sheet.dart:378:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\widgets\add_event_bottom_sheet.dart:392:50 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - flutter\speak_sync_app\lib\features\calendar\presentation\widgets\add_event_bottom_sheet.dart:425:25 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\widgets\add_event_bottom_sheet.dart:439:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\widgets\add_event_bottom_sheet.dart:468:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\calendar\presentation\widgets\add_event_bottom_sheet.dart:536:72 - deprecated_member_use
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:10:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:11:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:12:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:15:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:21:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:22:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:25:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:26:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:27:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:28:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:32:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:34:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:37:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:38:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:40:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:51:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:54:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:55:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:56:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:57:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:58:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:59:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:61:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\exercise_log_model.dart:63:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:10:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:11:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:12:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:15:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:18:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:22:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:23:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:27:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:28:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:31:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:32:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:33:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:36:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:37:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:39:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:50:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:54:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:55:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:57:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:58:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:59:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:60:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\financial_log_model.dart:61:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:10:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:11:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:12:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:15:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:21:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:22:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:23:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:24:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:26:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:27:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:30:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:33:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:34:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:36:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:47:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:50:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:51:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:52:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:53:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:55:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:56:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\food_log_model.dart:57:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:11:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:12:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:15:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:16:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:19:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:20:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:23:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:24:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:27:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:28:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:31:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:32:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:43:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:44:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:45:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:50:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:51:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:52:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:53:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:55:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:56:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:57:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:58:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:69:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:74:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:90:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:102:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:103:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:104:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:105:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\habit_model.dart:106:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:10:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:11:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:12:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:16:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:17:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:18:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:19:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:22:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:24:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:27:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:28:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:29:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:30:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:31:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:34:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:35:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:38:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:39:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:41:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:53:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:54:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:55:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:56:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:58:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:59:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:60:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:61:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:62:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:63:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\sleep_log_model.dart:64:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:10:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:11:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:12:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:13:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:16:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:17:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:18:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:19:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:22:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:23:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:26:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:27:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:28:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:29:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:32:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:33:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:37:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:40:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:41:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:44:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:46:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:57:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:58:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:59:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:60:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:61:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:62:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:63:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:64:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:65:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:66:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:67:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:68:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:70:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\study_log_model.dart:72:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:10:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:11:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:12:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:15:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:19:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:20:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:23:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:24:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:25:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:28:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:29:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:33:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:36:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:47:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:48:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:49:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:50:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:51:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:52:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:53:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:54:6 - invalid_annotation_target
+warning - The annotation 'JsonKey.new' can only be used on fields or getters - flutter\speak_sync_app\lib\features\habits\data\models\water_log_model.dart:56:6 - invalid_annotation_target
+   info - The private field _selectedFocusAreas could be 'final' - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:29:16 - prefer_final_fields
+   info - The private field _completed could be 'final' - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:32:8 - prefer_final_fields
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:133:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:138:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:185:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:188:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:262:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:267:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:339:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:347:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:375:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:398:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\exercise_logging_screen.dart:532:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:148:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:190:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:198:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:223:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:245:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:248:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:296:61 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:301:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:367:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:375:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:441:23 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:442:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\financial_logging_screen.dart:445:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\food_logging_screen.dart:132:51 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\food_logging_screen.dart:137:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\food_logging_screen.dart:181:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\food_logging_screen.dart:222:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\food_logging_screen.dart:227:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\food_logging_screen.dart:410:45 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - flutter\speak_sync_app\lib\features\habits\presentation\food_logging_screen.dart:455:11 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\food_logging_screen.dart:458:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habit_detail_screen.dart:202:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habit_detail_screen.dart:407:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habit_detail_screen.dart:410:24 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habit_detail_screen.dart:430:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habit_detail_screen.dart:451:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habit_detail_screen.dart:454:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habit_detail_screen.dart:485:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habit_detail_screen.dart:488:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habits_screen.dart:308:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habits_screen.dart:311:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habits_screen.dart:322:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habits_screen.dart:396:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\habits_screen.dart:399:24 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:196:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:199:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:247:61 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:252:60 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:310:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:333:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:366:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:439:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:442:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:519:45 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:564:11 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\sleep_logging_screen.dart:567:46 - deprecated_member_use
+   info - The private field _selectedContextTags could be 'final' - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:31:16 - prefer_final_fields
+   info - Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:117:9 - use_build_context_synchronously
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:267:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:272:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:338:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:343:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:394:49 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:402:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:418:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:478:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\study_logging_screen.dart:481:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\water_logging_screen.dart:112:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\water_logging_screen.dart:117:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\water_logging_screen.dart:163:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\water_logging_screen.dart:166:56 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\water_logging_screen.dart:218:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\water_logging_screen.dart:221:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\water_logging_screen.dart:300:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\water_logging_screen.dart:305:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\widgets\add_habit_bottom_sheet.dart:212:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\widgets\add_habit_bottom_sheet.dart:213:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\widgets\add_habit_bottom_sheet.dart:245:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\habits\presentation\widgets\add_habit_bottom_sheet.dart:281:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\home\presentation\home_screen.dart:103:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\home\presentation\home_screen.dart:175:50 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\home\presentation\home_screen.dart:180:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\home\presentation\home_screen.dart:337:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\home\presentation\home_screen.dart:349:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\notifications\presentation\notifications_screen.dart:123:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\notifications\presentation\notifications_screen.dart:124:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\notifications\presentation\notifications_screen.dart:128:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\notifications\presentation\notifications_screen.dart:129:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\notifications\presentation\notifications_screen.dart:150:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\notifications\presentation\notifications_screen.dart:205:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\notifications\presentation\notifications_screen.dart:211:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\edit_profile_screen.dart:222:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\edit_profile_screen.dart:253:58 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\edit_profile_screen.dart:293:58 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\edit_profile_screen.dart:331:59 - deprecated_member_use
+warning - The value of the field '_userEmail' isn't used - flutter\speak_sync_app\lib\features\profile\presentation\profile_screen.dart:19:10 - unused_field
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\profile_screen.dart:156:66 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\profile_screen.dart:195:70 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\profile_screen.dart:205:64 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\profile_screen.dart:374:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\profile_screen.dart:382:44 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\profile\presentation\profile_screen.dart:397:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:107:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:110:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:124:36 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:146:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:158:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:164:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:188:42 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:260:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:271:38 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:274:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:312:26 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:315:28 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\sample\presentation\sample_screen.dart:325:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\settings\presentation\settings_screen.dart:240:52 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\settings\presentation\settings_screen.dart:249:48 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\settings\presentation\settings_screen.dart:296:48 - deprecated_member_use
+   info - 'activeColor' is deprecated and shouldn't be used. Use activeThumbColor instead. This feature was deprecated after v3.31.0-2.0.pre - flutter\speak_sync_app\lib\features\settings\presentation\settings_screen.dart:305:13 - deprecated_member_use
+   info - 'groupValue' is deprecated and shouldn't be used. Use a RadioGroup ancestor to manage group value instead. This feature was deprecated after v3.32.0-0.0.pre - flutter\speak_sync_app\lib\features\settings\presentation\settings_screen.dart:341:7 - deprecated_member_use
+   info - 'onChanged' is deprecated and shouldn't be used. Use RadioGroup to handle value change instead. This feature was deprecated after v3.32.0-0.0.pre - flutter\speak_sync_app\lib\features\settings\presentation\settings_screen.dart:343:7 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\task_list_screen.dart:182:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\task_list_screen.dart:226:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\task_list_screen.dart:265:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\task_list_screen.dart:266:34 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\task_list_screen.dart:394:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\tasks_screen.dart:164:62 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\tasks_screen.dart:166:81 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\tasks_screen.dart:284:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\tasks_screen.dart:287:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\widgets\add_task_bottom_sheet.dart:356:39 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\features\tasks\presentation\widgets\add_task_bottom_sheet.dart:385:55 - deprecated_member_use
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - flutter\speak_sync_app\lib\shared\theme\app_theme.dart:72:7 - deprecated_member_use
+   info - 'onBackground' is deprecated and shouldn't be used. Use onSurface instead. This feature was deprecated after v3.18.0-0.1.pre - flutter\speak_sync_app\lib\shared\theme\app_theme.dart:77:7 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\theme\app_theme.dart:99:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\theme\app_theme.dart:108:40 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\theme\app_theme.dart:168:46 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\theme\app_theme.dart:220:37 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\ai_infinity_logo.dart:57:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\ai_infinity_logo.dart:58:41 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\ai_infinity_logo.dart:76:54 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\ai_infinity_logo.dart:156:23 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\animated_infinity_icon.dart:149:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\animated_infinity_icon.dart:150:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\animated_infinity_icon.dart:151:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\animated_infinity_icon.dart:163:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\animated_infinity_icon.dart:164:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\animated_infinity_icon.dart:165:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\animated_infinity_icon.dart:177:24 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\animated_infinity_icon.dart:178:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\animated_infinity_icon.dart:179:17 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - flutter\speak_sync_app\lib\shared\widgets\gradient_button.dart:33:44 - deprecated_member_use
+  error - The name 'MyApp' isn't a class - flutter\speak_sync_app\test\widget_test.dart:16:35 - creation_with_non_type
+
+409 issues found. (ran in 6.6s)

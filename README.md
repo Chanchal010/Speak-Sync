@@ -29,3 +29,7 @@ pnpm install          # Install all dependencies
 pnpm build:all        # Build all services
 pnpm test:all         # Run all tests
 ```
+
+```bash
+adb reverse tcp:3000 tcp:3000 && adb reverse tcp:3001 tcp:3001 && adb reverse tcp:8000 tcp:8000 && adb reverse tcp:8001 tcp:8001
+```

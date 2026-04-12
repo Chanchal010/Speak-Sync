@@ -1,23 +1,23 @@
 """
-Voice Service - Speech-to-Text using OpenAI Whisper
-Handles audio transcription with support for multiple formats and languages
+Voice Service - Speech-to-Text using Google Speech Recognition (FREE!)
+No API key needed, no quota limits for reasonable usage.
+Falls back gracefully if service is unavailable.
 """
-import openai
-from openai import AsyncOpenAI
-from typing import Optional, Dict, AsyncIterator
-import aiofiles
+import speech_recognition as sr
+from typing import Optional, Dict
 import os
 import io
 import tempfile
 from pathlib import Path
 import logging
+import asyncio
 
 logger = logging.getLogger(__name__)
 
 # Singleton instance
 _voice_service_instance: Optional['VoiceService'] = None
 
-# Try to import pydub, but don't fail if not available
+# Try to import pydub for audio conversion
 try:
     from pydub import AudioSegment
     PYDUB_AVAILABLE = True
@@ -28,24 +28,27 @@ except ImportError:
 
 class VoiceService:
     """
-    Speech-to-Text service using OpenAI Whisper API
-    Supports: WAV, MP3, M4A, WEBM, OGG formats
+    Speech-to-Text service using Google Speech Recognition (FREE!)
+    Supports: WAV, MP3, M4A, WEBM, OGG, FLAC formats
     Languages: Auto-detect or specify (en, hi, es, fr, etc.)
     """
     
-    def __init__(self, api_key: str, model: str = "whisper-1"):
+    def __init__(self, model: str = "google-free"):
         """
-        Initialize Whisper STT service
+        Initialize free STT service
         
         Args:
-            api_key: OpenAI API key
-            model: Whisper model (default: whisper-1)
+            model: Model identifier (for logging/compatibility)
         """
-        self.client = AsyncOpenAI(api_key=api_key)
+        self.recognizer = sr.Recognizer()
         self.model = model
         self.supported_formats = ['wav', 'mp3', 'm4a', 'webm', 'ogg', 'flac']
         
-        logger.info(f"✓ VoiceService initialized with model: {model}")
+        # Tune recognizer settings
+        self.recognizer.energy_threshold = 300
+        self.recognizer.dynamic_energy_threshold = True
+        
+        logger.info(f"✓ VoiceService initialized with model: {model} (FREE, no API key!)")
     
     async def transcribe_audio(
         self,
@@ -54,18 +57,18 @@ class VoiceService:
         format: str = "wav"
     ) -> Dict:
         """
-        Transcribe audio file
+        Transcribe audio using Google Speech Recognition (free)
         
         Args:
             audio_data: Raw audio bytes
-            language: Language code (e.g., 'en', 'hi') or None for auto-detect
+            language: Language code (e.g., 'en', 'hi', 'en-IN') or None for auto
             format: Audio format (wav, mp3, m4a, etc.)
         
         Returns:
             {
                 'text': 'Transcribed text',
                 'language': 'en',
-                'confidence': 0.95,
+                'confidence': 0.90,
                 'duration_ms': 5000
             }
         """
@@ -74,105 +77,122 @@ class VoiceService:
             if format.lower() not in self.supported_formats:
                 raise ValueError(f"Unsupported format: {format}. Supported: {self.supported_formats}")
             
-            # Create temporary file (Whisper API requires file upload)
-            with tempfile.NamedTemporaryFile(suffix=f'.{format}', delete=False) as temp_file:
-                temp_file.write(audio_data)
-                temp_path = temp_file.name
+            # Convert to WAV if needed (Google SR needs WAV)
+            wav_data = await self._ensure_wav(audio_data, format)
             
-            try:
-                # Get audio duration for metrics (if pydub available)
-                duration_ms = 0
-                if PYDUB_AVAILABLE:
-                    audio = AudioSegment.from_file(temp_path, format=format)
-                    duration_ms = len(audio)
-                
-                # Transcribe with Whisper
-                async with aiofiles.open(temp_path, 'rb') as audio_file:
-                    audio_bytes = await audio_file.read()
-                    
-                    # OpenAI Whisper API call
-                    transcript = await self.client.audio.transcriptions.create(
-                        model=self.model,
-                        file=(f"audio.{format}", audio_bytes),
-                        language=language,
-                        response_format="verbose_json"  # Get detailed response with confidence
-                    )
-                
-                # Calculate average confidence from segments
-                confidence = self._calculate_confidence(transcript)
-                
-                result = {
-                    'text': transcript.text,
-                    'language': transcript.language,
-                    'confidence': confidence,
-                    'duration_ms': duration_ms
-                }
-                
-                logger.info(f"✓ Transcribed {duration_ms}ms audio: '{transcript.text[:50]}...'")
-                return result
+            # Run transcription in executor (blocking operation)
+            result = await asyncio.get_event_loop().run_in_executor(
+                None, self._transcribe_sync, wav_data, language
+            )
             
-            finally:
-                # Clean up temp file
-                if os.path.exists(temp_path):
-                    os.unlink(temp_path)
-        
+            return result
+            
         except Exception as e:
             logger.error(f"Transcription failed: {e}")
             raise
+    
+    def _transcribe_sync(self, wav_data: bytes, language: Optional[str]) -> Dict:
+        """Synchronous transcription using Google Speech Recognition"""
+        try:
+            # Load audio from bytes
+            audio_file = sr.AudioFile(io.BytesIO(wav_data))
+            
+            with audio_file as source:
+                # Adjust for ambient noise
+                self.recognizer.adjust_for_ambient_noise(source, duration=0.3)
+                audio = self.recognizer.record(source)
+            
+            # Map language codes for Google SR
+            lang_code = self._map_language(language)
+            
+            # Try Google free recognition first
+            try:
+                text = self.recognizer.recognize_google(
+                    audio,
+                    language=lang_code,
+                    show_all=False
+                )
+                
+                logger.info(f"✓ Transcribed: '{text[:50]}...' (Google Free STT)")
+                
+                return {
+                    'text': text,
+                    'language': language or 'en',
+                    'confidence': 0.90,  # Google free doesn't return confidence
+                    'duration_ms': int(len(wav_data) / 32)  # Rough estimate
+                }
+                
+            except sr.UnknownValueError:
+                logger.warning("Google SR could not understand audio")
+                return {
+                    'text': '',
+                    'language': language or 'en',
+                    'confidence': 0.0,
+                    'duration_ms': 0
+                }
+                
+            except sr.RequestError as e:
+                logger.error(f"Google SR service error: {e}")
+                raise
+                
+        except Exception as e:
+            logger.error(f"Sync transcription failed: {e}")
+            raise
+    
+    def _map_language(self, language: Optional[str]) -> str:
+        """Map language codes to Google Speech Recognition format"""
+        if not language or language == 'auto':
+            return 'en-US'
+        
+        lang_map = {
+            'en': 'en-US',
+            'hi': 'hi-IN',
+            'es': 'es-ES',
+            'fr': 'fr-FR',
+            'de': 'de-DE',
+            'ja': 'ja-JP',
+            'zh': 'zh-CN',
+            'ko': 'ko-KR',
+            'pt': 'pt-BR',
+            'ru': 'ru-RU',
+            'ar': 'ar-SA',
+            'it': 'it-IT',
+        }
+        
+        return lang_map.get(language, language)
+    
+    async def _ensure_wav(self, audio_data: bytes, format: str) -> bytes:
+        """Convert audio to WAV format if needed"""
+        if format.lower() == 'wav':
+            return audio_data
+        
+        if not PYDUB_AVAILABLE:
+            # If pydub not available, try to use the raw data
+            logger.warning(f"Cannot convert {format} to WAV (pydub not available), trying raw")
+            return audio_data
+        
+        try:
+            def convert():
+                audio = AudioSegment.from_file(io.BytesIO(audio_data), format=format)
+                # Convert to mono, 16kHz WAV
+                audio = audio.set_channels(1).set_frame_rate(16000)
+                wav_buffer = io.BytesIO()
+                audio.export(wav_buffer, format='wav')
+                return wav_buffer.getvalue()
+            
+            return await asyncio.get_event_loop().run_in_executor(None, convert)
+        except Exception as e:
+            logger.error(f"Audio conversion failed: {e}")
+            return audio_data  # Try with raw data
     
     async def transcribe_chunk(
         self,
         audio_data: bytes,
         language: Optional[str] = "en"
     ) -> Dict:
-        """
-        Transcribe audio chunk for streaming (optimized for real-time)
-        
-        Args:
-            audio_data: Raw audio bytes
-            language: Language code (default: en)
-        
-        Returns:
-            {
-                'text': 'Partial transcription',
-                'confidence': 0.9,
-                'language': 'en'
-            }
-        """
+        """Transcribe audio chunk for streaming"""
         try:
-            # For streaming, we process smaller chunks
-            # If pydub available, convert to WAV, otherwise send as-is
-            if PYDUB_AVAILABLE:
-                audio = AudioSegment.from_file(
-                    io.BytesIO(audio_data),
-                    format="wav"
-                )
-                
-                # Export as WAV for Whisper
-                wav_buffer = io.BytesIO()
-                audio.export(wav_buffer, format="wav")
-                wav_buffer.seek(0)
-                audio_bytes = wav_buffer.read()
-            else:
-                # Send audio directly (assume WAV format)
-                audio_bytes = audio_data
-            
-            # Transcribe chunk
-            transcript = await self.client.audio.transcriptions.create(
-                model=self.model,
-                file=("chunk.wav", audio_bytes),
-                language=language,
-                response_format="verbose_json"
-            )
-            
-            confidence = self._calculate_confidence(transcript)
-            
-            return {
-                'text': transcript.text,
-                'confidence': confidence,
-                'language': transcript.language
-            }
-        
+            return await self.transcribe_audio(audio_data, language, format="wav")
         except Exception as e:
             logger.error(f"Chunk transcription failed: {e}")
             return {
@@ -186,101 +206,38 @@ class VoiceService:
         file_path: str,
         language: Optional[str] = None
     ) -> Dict:
-        """
-        Transcribe audio from file path
-        
-        Args:
-            file_path: Path to audio file
-            language: Language code or None for auto-detect
-        
-        Returns:
-            Transcription result dictionary
-        """
+        """Transcribe audio from file path"""
         try:
-            # Detect format from file extension
             format = Path(file_path).suffix[1:].lower()
             
-            # Read file
-            async with aiofiles.open(file_path, 'rb') as f:
-                audio_data = await f.read()
+            with open(file_path, 'rb') as f:
+                audio_data = f.read()
             
-            # Transcribe
             return await self.transcribe_audio(
                 audio_data=audio_data,
                 language=language,
                 format=format
             )
-        
         except Exception as e:
             logger.error(f"File transcription failed: {e}")
             raise
-    
-    def _calculate_confidence(self, transcript) -> float:
-        """
-        Calculate average confidence score from transcript segments
-        
-        Args:
-            transcript: Whisper API response
-        
-        Returns:
-            Average confidence (0.0 to 1.0)
-        """
-        try:
-            # Whisper doesn't provide confidence in basic response
-            # For verbose_json, we can estimate from segments if available
-            if hasattr(transcript, 'segments') and transcript.segments:
-                # Calculate from segment probabilities
-                total_confidence = sum(
-                    segment.get('avg_logprob', -1.0) 
-                    for segment in transcript.segments
-                )
-                avg_confidence = total_confidence / len(transcript.segments)
-                # Convert log probability to confidence (0-1)
-                # avg_logprob ranges from -inf to 0, normalize to 0-1
-                confidence = max(0.0, min(1.0, (avg_confidence + 1.0)))
-                return confidence
-            
-            # Default confidence if segments not available
-            return 0.95  # Whisper is generally very accurate
-        
-        except Exception:
-            return 0.90  # Conservative default
     
     async def validate_audio(
         self,
         audio_data: bytes,
         format: str = "wav"
     ) -> Dict:
-        """
-        Validate audio file quality and characteristics
-        
-        Args:
-            audio_data: Raw audio bytes
-            format: Audio format
-        
-        Returns:
-            {
-                'valid': True,
-                'duration_ms': 5000,
-                'sample_rate': 16000,
-                'channels': 1,
-                'format': 'wav'
-            }
-        """
+        """Validate audio file quality"""
         try:
             if not PYDUB_AVAILABLE:
-                # Basic validation without pydub
                 return {
                     'valid': True,
                     'duration_ms': 0,
                     'format': format,
-                    'note': 'Advanced validation unavailable (pydub not installed)'
+                    'note': 'Advanced validation unavailable'
                 }
             
-            audio = AudioSegment.from_file(
-                io.BytesIO(audio_data),
-                format=format
-            )
+            audio = AudioSegment.from_file(io.BytesIO(audio_data), format=format)
             
             return {
                 'valid': True,
@@ -290,65 +247,9 @@ class VoiceService:
                 'format': format,
                 'bit_depth': audio.sample_width * 8
             }
-        
         except Exception as e:
             logger.error(f"Audio validation failed: {e}")
-            return {
-                'valid': False,
-                'error': str(e)
-            }
-    
-    async def convert_audio_format(
-        self,
-        audio_data: bytes,
-        from_format: str,
-        to_format: str = "wav",
-        sample_rate: int = 16000
-    ) -> bytes:
-        """
-        Convert audio from one format to another
-        
-        Args:
-            audio_data: Raw audio bytes
-            from_format: Source format
-            to_format: Target format (default: wav)
-            sample_rate: Target sample rate (default: 16000)
-        
-        Returns:
-            Converted audio bytes
-        """
-        try:
-            if not PYDUB_AVAILABLE:
-                raise NotImplementedError("Audio conversion requires pydub. Please install: pip install pydub ffmpeg-python")
-            
-            # Load audio
-            audio = AudioSegment.from_file(
-                io.BytesIO(audio_data),
-                format=from_format
-            )
-            
-            # Convert to mono if stereo (reduce size)
-            if audio.channels > 1:
-                audio = audio.set_channels(1)
-            
-            # Resample if needed
-            if audio.frame_rate != sample_rate:
-                audio = audio.set_frame_rate(sample_rate)
-            
-            # Export to target format
-            output_buffer = io.BytesIO()
-            audio.export(output_buffer, format=to_format)
-            output_buffer.seek(0)
-            
-            return output_buffer.read()
-        
-        except Exception as e:
-            logger.error(f"Audio conversion failed: {e}")
-            raise
-
-
-# Singleton instance (will be initialized in dependencies)
-_voice_service_instance: Optional[VoiceService] = None
+            return {'valid': False, 'error': str(e)}
 
 
 def get_voice_service() -> VoiceService:
@@ -356,10 +257,6 @@ def get_voice_service() -> VoiceService:
     global _voice_service_instance
     
     if _voice_service_instance is None:
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise ValueError("OPENAI_API_KEY not found in environment")
-        
-        _voice_service_instance = VoiceService(api_key=api_key)
+        _voice_service_instance = VoiceService()  # No API key needed!
     
     return _voice_service_instance

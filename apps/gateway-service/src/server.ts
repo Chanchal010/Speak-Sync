@@ -6,6 +6,7 @@ import morgan from 'morgan';
 // import rateLimit from 'express-rate-limit'; // Commented out for now
 import authRoutes from './routes/auth.routes.js';
 import aiBrainRoutes from './routes/ai-brain.routes.js';
+import aiRoutes from './routes/ai.routes.js';
 import lifestyleRoutes from './routes/lifestyle.routes.js';
 import schedulerRoutes from './routes/scheduler.routes.js';
 import { errorHandler } from './middleware/error-handler.middleware.js';
@@ -81,14 +82,15 @@ app.get('/', (req, res) => {
 // API routes (rate limiter commented out for now)
 app.use('/api/auth', authRoutes);
 app.use('/api/gateway', aiBrainRoutes);
+app.use('/api/gateway/ai', aiRoutes);
 app.use('/api/gateway/lifestyle', lifestyleRoutes);
 app.use('/api/scheduler', schedulerRoutes);
 
 // Global error handler (must be last)
 app.use(errorHandler);
 
-const server = app.listen(PORT, () => {
-  console.log(`✓ Gateway Service running on port ${PORT}`);
+const server = app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`✓ Gateway Service running on port ${PORT} (0.0.0.0)`);
 });
 
 // Graceful shutdown

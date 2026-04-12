@@ -1,0 +1,181 @@
+# Jarvis-like AI Voice Assistant — Implementation Plan
+
+## Problem & Goal
+
+The Speak-Sync app has a full AI Voice pipeline (STT → NLU → TTS) and a beautiful Gemini-style voice overlay, but **the AI currently does nothing actionable**. The Gateway's [converse()](file:///media/code-buddy/code/Projects/Speak-Sync/flutter/speak_sync_app/lib/core/services/voice_service.dart#197-244) is a placeholder that echoes transcripts, and the AI Brain's NLU detects intents but never executes them. 
+
+**Goal:** Turn the AI into a Jarvis-like assistant that actually **controls the app via voice** — creating tasks, logging habits, scheduling events, changing profile, generating reports, etc. — in a natural, conversational style with low friction.
+
+---
+
+## User Review Required
+
+> [!IMPORTANT]
+> **This is a large, multi-service change** spanning AI Brain Service (Python), Gateway Service (Node.js), and Flutter app. The plan is designed as **Phase 2 first** (backend action engine) so we can verify intent→action mapping works before touching the frontend.
+
+> [!WARNING] 
+> **LLM Dependency:** The action execution depends on the NLU service correctly parsing intents. The quality of intent detection relies on the Llama-3.3-70b model via OpenRouter. Error handling and fallback paths are included in the design.
+
+---
+
+## Architecture Overview
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  Flutter App                                              │
+│  ┌────────────────────────────────────────────┐           │
+│  │ GeminiVoiceOverlay                         │           │
+│  │  Record → VoiceService.converse()          │           │
+│  │  ← Action result + AI spoken response      │           │
+│  └──────────────────┬─────────────────────────┘           │
+└─────────────────────┼────────────────────────────────────┘
+                      │ POST /api/gateway/ai/converse
+                      ▼
+┌──────────────────────────────────────────────────────────┐
+│  Gateway Service (Node.js)                                │
+│  ai.service.ts → converse()                               │
+│    1. Forward audio to AI Brain /conversation/voice       │
+│    2. Receive intent + entities + action_result            │
+│    3. If action needed → call Scheduler/Lifestyle APIs     │
+│    4. Return response + action_result to Flutter           │
+└──────────────────┬───────────────────────────────────────┘
+                   │
+         ┌─────────┼──────────┐
+         ▼         ▼          ▼
+┌────────────┐ ┌────────┐ ┌──────────┐
+│ AI Brain   │ │Scheduler│ │Lifestyle │
+│ (Python)   │ │(Node.js)│ │(Python)  │
+│ STT→NLU→  │ │Tasks    │ │Habits    │
+│ Action→TTS │ │Events   │ │Food/Water│
+│            │ │Categor. │ │Exercise  │
+└────────────┘ └────────┘ │Sleep/etc.│
+                           └──────────┘
+```
+
+---
+
+## Proposed Changes
+
+### AI Brain Service — Action Execution Engine
+
+This is the core new component. After NLU detects an intent, the action executor decides what API action to take and formats the parameters.
+
+#### [NEW] [action_executor_service.py](file:///media/code-buddy/code/Projects/Speak-Sync/apps/ai-brain-service/src/services/action_executor_service.py)
+
+New service that maps detected intents to structured action payloads:
+
+- **Input:** NLU result ([intent](file:///media/code-buddy/code/Projects/Speak-Sync/apps/ai-brain-service/src/api/routes/chat.py#309-335), `domain`, [entities](file:///media/code-buddy/code/Projects/Speak-Sync/apps/ai-brain-service/src/api/routes/chat.py#89-128), [confidence](file:///media/code-buddy/code/Projects/Speak-Sync/apps/ai-brain-service/src/services/voice_service.py#218-248))
+- **Output:** Action descriptor with [service](file:///media/code-buddy/code/Projects/Speak-Sync/apps/ai-brain-service/src/main.py#201-224), `method`, `endpoint`, `payload`, `confirmation_text`
+- Implements the **"Missing Data" Strategy** — fills in smart defaults (today's date, neutral mood, etc.) when user doesn't provide everything, instead of asking interrogative follow-ups
+- Maps every app intent to its backend API call:
+
+| Intent | Service | API Call | Example |
+|--------|---------|----------|---------|
+| `create_task` | Scheduler | `POST /api/tasks` | "Add buy groceries to my tasks" |
+| `update_task` | Scheduler | `PUT /api/tasks/:id` | "Mark my workout task as done" |
+| `delete_task` | Scheduler | `DELETE /api/tasks/:id` | "Delete the meeting task" |
+| `query_schedule` | Scheduler | `GET /api/tasks` | "What are my tasks for today?" |
+| `create_event` | Scheduler | `POST /api/events` | "Schedule a meeting tomorrow at 3pm" |
+| `log_exercise` | Lifestyle | `POST /api/exercise` | "I just finished a 30 min run" |
+| `log_food` | Lifestyle | `POST /api/food` | "I had rice and dal for lunch" |
+| `log_water` | Lifestyle | `POST /api/water` | "Just drank a glass of water" |
+| `log_sleep` | Lifestyle | `POST /api/sleep` | "I slept at 11pm, woke up at 7am" |
+| `log_expense` | Lifestyle | `POST /api/finance` | "Spent 500 on groceries" |
+| `track_habit` | Lifestyle | `POST /api/habits/:id/log` | "I meditated for 20 minutes" |
+| `greeting` | None | N/A | "Hey!" → AI greets back |
+
+---
+
+#### [MODIFY] [nlu_service.py](file:///media/code-buddy/code/Projects/Speak-Sync/apps/ai-brain-service/src/services/nlu_service.py)
+
+- **Expand `INTENT_CATEGORIES`** to include: `create_event`, `update_event`, `delete_event`, `query_habits`, `log_food`, `log_study`, `update_profile`, `get_report`
+- **Improve system prompt** for better conversational tone matching the user's examples (no interrogation, infer missing data, conversational follow-ups)
+- **Add context enrichment** — pass current time, time of day (for greeting style), first-time flag
+
+---
+
+#### [MODIFY] [conversation_service.py](file:///media/code-buddy/code/Projects/Speak-Sync/apps/ai-brain-service/src/services/conversation_service.py)
+
+- **Add action execution step** after NLU, before TTS:
+  ```
+  STT → NLU → ACTION_EXECUTOR → GENERATE_RESPONSE (with action result) → TTS
+  ```
+- **Add first-time greeting logic**: Track `is_first_interaction` per user in session, deliver onboarding greeting on first click
+- **Add multi-turn context**: When action executor needs more info (e.g., which task to delete when user has many), store pending_action in session and ask a soft follow-up
+- **Include `action_result`** in the response payload so Gateway/Flutter can show action confirmations
+
+---
+
+### Gateway Service — Proper Conversation Routing
+
+#### [MODIFY] [ai.service.ts](file:///media/code-buddy/code/Projects/Speak-Sync/apps/gateway-service/src/services/ai.service.ts)
+
+- **Replace placeholder [converse()](file:///media/code-buddy/code/Projects/Speak-Sync/flutter/speak_sync_app/lib/core/services/voice_service.dart#197-244)** with proper call to AI Brain's `/api/ai/conversation/voice` endpoint
+- **Add action routing**: When AI Brain returns an action payload, execute it against the appropriate backend service (Scheduler or Lifestyle) using existing service clients
+- **Return structured result** to Flutter including: `transcript`, `response_text`, `audio_base64`, `action_result` (what was created/updated/deleted)
+
+#### [MODIFY] [ai.routes.ts](file:///media/code-buddy/code/Projects/Speak-Sync/apps/gateway-service/src/routes/ai.routes.ts)
+
+- **Update `/converse` endpoint** to pass `user_id` from JWT token to AI Brain service
+- **Add `action_result`** to the response body
+
+---
+
+### Flutter App — Enhanced Voice UX
+
+#### [MODIFY] [voice_service.dart](file:///media/code-buddy/code/Projects/Speak-Sync/flutter/speak_sync_app/lib/core/services/voice_service.dart)
+
+- **Fix [converse()](file:///media/code-buddy/code/Projects/Speak-Sync/flutter/speak_sync_app/lib/core/services/voice_service.dart#197-244) audio handling**: Properly decode base64 audio from response
+- **Parse `action_result`** from response to know what the AI did
+
+#### [MODIFY] [gemini_voice_overlay.dart](file:///media/code-buddy/code/Projects/Speak-Sync/flutter/speak_sync_app/lib/features/ai/presentation/widgets/gemini_voice_overlay.dart)
+
+- **Display action confirmations**: Show what the AI did (e.g., "✓ Task created: Buy groceries")
+- **Add breathing/speaking state for AI response playback**
+- **First-time greeting UX**: Slightly different UI for onboarding (welcome message displayed)
+- **Multi-turn support**: After AI speaks, auto-switch to listening mode for follow-up
+
+---
+
+## Verification Plan
+
+### Manual Verification (Recommended)
+
+Since this is a voice AI system interacting across 3 services, the most effective verification is end-to-end manual testing:
+
+1. **Start all services** — run the AI Brain service (`python -m uvicorn src.main:app --port 8000`), Gateway (`npm run dev`), Scheduler, and Lifestyle services
+2. **Test AI Brain endpoint directly** with curl:
+   ```bash
+   curl -X POST http://localhost:8000/api/ai/chat/intent \
+     -H "Content-Type: application/json" \
+     -d '{"text": "Add buy groceries to my tasks for tomorrow", "user_id": "test123"}'
+   ```
+   Verify the response includes `intent: create_task`, `domain: scheduling`, and proper [entities](file:///media/code-buddy/code/Projects/Speak-Sync/apps/ai-brain-service/src/api/routes/chat.py#89-128)
+
+3. **Test action executor directly**:
+   ```bash
+   curl -X POST http://localhost:8000/api/ai/conversation/text \
+     -H "Content-Type: application/json" \
+     -d '{"text": "I just walked for 30 minutes", "user_id": "test123"}'
+   ```
+   Verify it returns an `action_result` with the action details
+
+4. **Flutter app testing**: Open the app, tap the AI mic button, speak commands like:
+   - "Hey" → should get a friendly greeting
+   - "Add a task to buy milk tomorrow" → should create a task and confirm
+   - "I drank two glasses of water" → should log water intake
+   - "What are my tasks for today?" → should list tasks
+
+> [!TIP]
+> Since the services may not all be running locally, **please let me know your preferred way to test** — do you want me to write a test script, or do you prefer testing through the Flutter app directly?
+
+### Automated Test (New)
+
+#### [NEW] `test_action_executor.py` in `apps/ai-brain-service/tests/`
+
+A Python test file that validates the action executor mapping logic:
+- Test each intent maps to the correct service/endpoint/method
+- Test missing data defaults are filled correctly
+- Test confidence threshold gating (low-confidence intents get clarification, not action)
+
+Run with: `cd apps/ai-brain-service && python -m pytest tests/test_action_executor.py -v`

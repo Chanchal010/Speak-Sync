@@ -138,3 +138,10 @@ docker-compose.override.yml
 *.seed
 *.pid
 *.pid.lock
+# Flutter App
+flutter/speak_sync_app/.dart_tool/
+flutter/speak_sync_app/.idea/
+flutter/speak_sync_app/build/
+flutter/speak_sync_app/.flutter-plugins
+flutter/speak_sync_app/.flutter-plugins-dependencies
+

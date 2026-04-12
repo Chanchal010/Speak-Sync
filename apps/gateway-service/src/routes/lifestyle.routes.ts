@@ -15,7 +15,17 @@ const authMiddleware = authenticate;
  */
 router.post('/habits', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await lifestyleService.createHabit(req.body);
+        const userId = (req as any).user?.userId;
+        if (!userId) {
+            return res.status(401).json({ success: false, error: 'Unauthorized' });
+        }
+
+        const result = await lifestyleService.forwardRequest(
+            'POST',
+            '/api/habits',
+            req.body,
+            { 'x-user-id': userId }
+        );
         res.json(result);
     } catch (error) {
         next(error);
@@ -28,8 +38,24 @@ router.post('/habits', authMiddleware, async (req: Request, res: Response, next:
  */
 router.get('/habits', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = req.query.user_id as string;
-        const result = await lifestyleService.getHabits(userId);
+        const userId = (req as any).user?.userId;
+        if (!userId) {
+            return res.status(401).json({ success: false, error: 'Unauthorized' });
+        }
+
+        // Build query params
+        const params = new URLSearchParams();
+        params.append('user_id', userId);
+        Object.keys(req.query).forEach(key => {
+            if (key !== 'user_id') params.append(key, req.query[key] as string);
+        });
+
+        const result = await lifestyleService.forwardRequest(
+            'GET',
+            `/api/habits?${params.toString()}`,
+            undefined,
+            { 'x-user-id': userId }
+        );
         res.json(result);
     } catch (error) {
         next(error);

@@ -1,0 +1,872 @@
+{
+    "info": {
+        "_postman_id": "speak-sync-complete-api-v1",
+        "name": "Speak-Sync Complete API",
+        "description": "Complete API collection for Speak-Sync microservices including Gateway, Scheduler (Tasks, Categories & Events), and internal services with authentication",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "speak-sync-v1"
+    },
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{ACCESS_TOKEN}}",
+                "type": "string"
+            }
+        ]
+    },
+    "item": [
+        {
+            "name": "🔍 Health Checks",
+            "item": [
+                {
+                    "name": "Gateway Health",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{GATEWAY_URL}}/health",
+                            "host": ["{{GATEWAY_URL}}"],
+                            "path": ["health"]
+                        },
+                        "description": "Check if Gateway Service is healthy"
+                    }
+                },
+                {
+                    "name": "Scheduler Health",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/health",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["health"]
+                        },
+                        "description": "Check if Scheduler Service is healthy"
+                    }
+                }
+            ],
+            "description": "Health check endpoints for all services"
+        },
+        {
+            "name": "🔐 Authentication",
+            "item": [
+                {
+                    "name": "Register User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.tokens) {",
+                                    "        pm.environment.set('ACCESS_TOKEN', jsonData.data.tokens.accessToken);",
+                                    "        pm.environment.set('REFRESH_TOKEN', jsonData.data.tokens.refreshToken);",
+                                    "        pm.environment.set('USER_ID', jsonData.data.user.id);",
+                                    "        pm.environment.set('USER_EMAIL', jsonData.data.user.email);",
+                                    "        console.log('✅ User registered and tokens saved');",
+                                    "    }",
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});",
+                                    "",
+                                    "pm.test('Response has tokens', function () {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    pm.expect(jsonData.data).to.have.property('tokens');",
+                                    "    pm.expect(jsonData.data.tokens).to.have.property('accessToken');",
+                                    "    pm.expect(jsonData.data.tokens).to.have.property('refreshToken');",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"SecurePass123!@#\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{GATEWAY_URL}}/api/auth/register",
+                            "host": ["{{GATEWAY_URL}}"],
+                            "path": ["api", "auth", "register"]
+                        },
+                        "description": "Register a new user account.\n\n**Body:**\n- `name` (string, required): 2-100 characters\n- `email` (string, required): Valid email\n- `password` (string, required): Min 8 chars, must include uppercase, lowercase, number, special char"
+                    }
+                },
+                {
+                    "name": "Login User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.tokens) {",
+                                    "        pm.environment.set('ACCESS_TOKEN', jsonData.data.tokens.accessToken);",
+                                    "        pm.environment.set('REFRESH_TOKEN', jsonData.data.tokens.refreshToken);",
+                                    "        pm.environment.set('USER_ID', jsonData.data.user.id);",
+                                    "        pm.environment.set('USER_EMAIL', jsonData.data.user.email);",
+                                    "        console.log('✅ User logged in and tokens saved');",
+                                    "    }",
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 200', function () {",
+                                    "    pm.response.to.have.status(200);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"SecurePass123!@#\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{GATEWAY_URL}}/api/auth/login",
+                            "host": ["{{GATEWAY_URL}}"],
+                            "path": ["api", "auth", "login"]
+                        },
+                        "description": "Login with email and password"
+                    }
+                },
+                {
+                    "name": "Refresh Token",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.tokens) {",
+                                    "        pm.environment.set('ACCESS_TOKEN', jsonData.data.tokens.accessToken);",
+                                    "        pm.environment.set('REFRESH_TOKEN', jsonData.data.tokens.refreshToken);",
+                                    "        console.log('✅ Tokens refreshed');",
+                                    "    }",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"refreshToken\": \"{{REFRESH_TOKEN}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{GATEWAY_URL}}/api/auth/refresh",
+                            "host": ["{{GATEWAY_URL}}"],
+                            "path": ["api", "auth", "refresh"]
+                        },
+                        "description": "Get new access token using refresh token"
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "url": {
+                            "raw": "{{GATEWAY_URL}}/api/auth/logout",
+                            "host": ["{{GATEWAY_URL}}"],
+                            "path": ["api", "auth", "logout"]
+                        },
+                        "description": "Logout and invalidate access token"
+                    }
+                },
+                {
+                    "name": "Get Current User",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{GATEWAY_URL}}/api/auth/me",
+                            "host": ["{{GATEWAY_URL}}"],
+                            "path": ["api", "auth", "me"]
+                        },
+                        "description": "Get authenticated user profile"
+                    }
+                }
+            ],
+            "description": "User authentication and token management"
+        },
+        {
+            "name": "📁 Categories",
+            "item": [
+                {
+                    "name": "Create Category",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.id) {",
+                                    "        pm.environment.set('CATEGORY_ID', jsonData.data.id);",
+                                    "        console.log('✅ Category created: ' + jsonData.data.name);",
+                                    "    }",
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Personal\",\n    \"icon\": \"👤\",\n    \"color\": \"#3B82F6\",\n    \"order\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/categories",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "categories"]
+                        },
+                        "description": "Create a new task category.\n\n**Body:**\n- `name` (string, required): Category name (1-50 chars)\n- `icon` (string, optional): Emoji or icon identifier\n- `color` (string, optional): Hex color code (#RRGGBB)\n- `order` (number, optional): Display order"
+                    }
+                },
+                {
+                    "name": "Get All Categories",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/categories?includeTasks=true",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "categories"],
+                            "query": [
+                                {
+                                    "key": "includeTasks",
+                                    "value": "true",
+                                    "description": "Include tasks in each category"
+                                }
+                            ]
+                        },
+                        "description": "Get all categories for the authenticated user.\n\n**Query Parameters:**\n- `includeTasks` (boolean): Include tasks in response"
+                    }
+                },
+                {
+                    "name": "Get Category by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/categories/{{CATEGORY_ID}}?includeTasks=true",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "categories", "{{CATEGORY_ID}}"],
+                            "query": [
+                                {
+                                    "key": "includeTasks",
+                                    "value": "true"
+                                }
+                            ]
+                        },
+                        "description": "Get a specific category by ID"
+                    }
+                },
+                {
+                    "name": "Update Category",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Personal (Updated)\",\n    \"icon\": \"👨‍💼\",\n    \"color\": \"#4F46E5\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/categories/{{CATEGORY_ID}}",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "categories", "{{CATEGORY_ID}}"]
+                        },
+                        "description": "Update an existing category"
+                    }
+                },
+                {
+                    "name": "Reorder Categories",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"categoryOrders\": [\n        {\n            \"categoryId\": \"uuid-1\",\n            \"order\": 1\n        },\n        {\n            \"categoryId\": \"uuid-2\",\n            \"order\": 2\n        }\n    ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/categories/reorder",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "categories", "reorder"]
+                        },
+                        "description": "Reorder categories in bulk"
+                    }
+                },
+                {
+                    "name": "Delete Category",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/categories/{{CATEGORY_ID}}",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "categories", "{{CATEGORY_ID}}"]
+                        },
+                        "description": "Delete a category (tasks will be uncategorized)"
+                    }
+                }
+            ],
+            "description": "Category management for organizing tasks"
+        },
+        {
+            "name": "✅ Tasks",
+            "item": [
+                {
+                    "name": "Create Task",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.id) {",
+                                    "        pm.environment.set('TASK_ID', jsonData.data.id);",
+                                    "        console.log('✅ Task created: ' + jsonData.data.title);",
+                                    "    }",
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Buy groceries\",\n    \"description\": \"Get milk, eggs, bread, and vegetables\",\n    \"categoryId\": \"{{CATEGORY_ID}}\",\n    \"priority\": \"MI\",\n    \"status\": \"pending\",\n    \"dueDate\": \"2025-12-05T18:00:00.000Z\",\n    \"tags\": [\"shopping\", \"urgent\"],\n    \"timeEstimateMinutes\": 30,\n    \"colorHex\": \"#F59E0B\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks"]
+                        },
+                        "description": "Create a new task.\n\n**Body:**\n- `title` (string, required): 1-200 characters\n- `description` (string, optional): Max 2000 characters\n- `categoryId` (string, optional): UUID of category\n- `priority` (string, optional): VI, MI, or NI (default: MI)\n- `status` (string, optional): pending, in_progress, completed, cancelled (default: pending)\n- `scheduledDate` (datetime, optional): When task is planned\n- `dueDate` (datetime, optional): Task deadline\n- `colorHex` (string, optional): Custom color (#RRGGBB)\n- `tags` (array, optional): Array of tag strings\n- `timeEstimateMinutes` (number, optional): Estimated duration\n- `voiceTranscript` (string, optional): Voice command transcript\n- `sentimentScore` (number, optional): -1.0 to 1.0\n- `contextMetadata` (object, optional): Additional context data"
+                    }
+                },
+                {
+                    "name": "Create Task with Voice",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Call dentist for appointment\",\n    \"description\": \"Schedule teeth cleaning appointment\",\n    \"priority\": \"VI\",\n    \"dueDate\": \"2025-12-10T12:00:00.000Z\",\n    \"voiceTranscript\": \"Remind me to call the dentist urgently for my teeth cleaning\",\n    \"sentimentScore\": -0.3,\n    \"contextMetadata\": {\n        \"device\": \"mobile\",\n        \"location\": \"home\",\n        \"time_of_day\": \"morning\"\n    },\n    \"tags\": [\"health\", \"urgent\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks"]
+                        },
+                        "description": "Create task with voice transcript and AI context for training"
+                    }
+                },
+                {
+                    "name": "Get All Tasks",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks?page=1&limit=20&status=pending&priority=MI&sortBy=dueDate&order=asc",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks"],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1",
+                                    "description": "Page number"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20",
+                                    "description": "Items per page"
+                                },
+                                {
+                                    "key": "categoryId",
+                                    "value": "{{CATEGORY_ID}}",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "priority",
+                                    "value": "MI",
+                                    "description": "VI, MI, or NI",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "pending",
+                                    "description": "pending, in_progress, completed, cancelled"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": "groceries",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "tags",
+                                    "value": "urgent",
+                                    "disabled": true
+                                },
+                                {
+                                    "key": "sortBy",
+                                    "value": "dueDate",
+                                    "description": "Field to sort by"
+                                },
+                                {
+                                    "key": "order",
+                                    "value": "asc",
+                                    "description": "asc or desc"
+                                }
+                            ]
+                        },
+                        "description": "Get all tasks with filtering, search, and pagination.\n\n**Query Parameters:**\n- `page` (number): Page number (default: 1)\n- `limit` (number): Items per page (default: 20, max: 100)\n- `categoryId` (string): Filter by category\n- `priority` (string): Filter by priority (VI, MI, NI)\n- `status` (string): Filter by status\n- `search` (string): Search in title and description\n- `tags` (string): Filter by tags (comma-separated)\n- `scheduledDateFrom` (datetime): Filter scheduled date from\n- `scheduledDateTo` (datetime): Filter scheduled date to\n- `dueDateFrom` (datetime): Filter due date from\n- `dueDateTo` (datetime): Filter due date to\n- `sortBy` (string): Field to sort by\n- `order` (string): asc or desc"
+                    }
+                },
+                {
+                    "name": "Get Tasks by Category",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks/by-category",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks", "by-category"]
+                        },
+                        "description": "Get tasks grouped by category (for wireframe UI).\n\nReturns categories with their tasks in a structured format:\n```json\n[\n  {\n    \"categoryId\": \"uuid\",\n    \"categoryName\": \"Personal\",\n    \"categoryIcon\": \"👤\",\n    \"categoryColor\": \"#3B82F6\",\n    \"tasks\": [...]\n  }\n]\n```"
+                    }
+                },
+                {
+                    "name": "Get Task by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks/{{TASK_ID}}",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks", "{{TASK_ID}}"]
+                        },
+                        "description": "Get a specific task by ID with all details"
+                    }
+                },
+                {
+                    "name": "Update Task",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Buy groceries (Updated)\",\n    \"description\": \"Get milk, eggs, bread, vegetables, and fruits\",\n    \"priority\": \"VI\",\n    \"status\": \"in_progress\",\n    \"dueDate\": \"2025-12-06T18:00:00.000Z\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks/{{TASK_ID}}",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks", "{{TASK_ID}}"]
+                        },
+                        "description": "Update task fields. Priority changes and rescheduling are tracked for AI training."
+                    }
+                },
+                {
+                    "name": "Toggle Task Completion",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks/{{TASK_ID}}/complete",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks", "{{TASK_ID}}", "complete"]
+                        },
+                        "description": "Toggle task completion status. Calculates actual time taken and builds completion patterns for AI."
+                    }
+                },
+                {
+                    "name": "Delete Task (Soft)",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks/{{TASK_ID}}",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks", "{{TASK_ID}}"]
+                        },
+                        "description": "Soft delete task (preserves data for AI training)"
+                    }
+                },
+                {
+                    "name": "Bulk Update Tasks",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"taskIds\": [\n        \"{{TASK_ID}}\"\n    ],\n    \"updates\": {\n        \"priority\": \"VI\",\n        \"status\": \"in_progress\",\n        \"categoryId\": \"{{CATEGORY_ID}}\"\n    }\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks/bulk-update",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks", "bulk-update"]
+                        },
+                        "description": "Update multiple tasks at once.\n\n**Body:**\n- `taskIds` (array, required): Array of task UUIDs\n- `updates` (object, required): Fields to update"
+                    }
+                },
+                {
+                    "name": "Get Task Statistics",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/tasks/stats",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "tasks", "stats"]
+                        },
+                        "description": "Get task statistics for the authenticated user.\n\nReturns:\n- Total tasks count\n- Completed tasks count\n- Completion rate percentage\n- Priority distribution (VI, MI, NI counts)\n- Status distribution"
+                    }
+                }
+            ],
+            "description": "Task management with AI-ready data tracking"
+        },
+        {
+            "name": "📅 Calendar Events",
+            "item": [
+                {
+                    "name": "Create Event",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const jsonData = pm.response.json();",
+                                    "    if (jsonData.data && jsonData.data.id) {",
+                                    "        pm.environment.set('EVENT_ID', jsonData.data.id);",
+                                    "        console.log('✅ Event created and EVENT_ID saved:', jsonData.data.id);",
+                                    "    }",
+                                    "    if (jsonData.warnings) {",
+                                    "        console.warn('⚠️ Conflicts detected:', jsonData.warnings.conflicts.length);",
+                                    "    }",
+                                    "}",
+                                    "",
+                                    "pm.test('Status code is 201', function () {",
+                                    "    pm.response.to.have.status(201);",
+                                    "});"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Team Standup Meeting\",\n    \"description\": \"Daily standup with the dev team\",\n    \"startTime\": \"2025-12-04T09:00:00Z\",\n    \"endTime\": \"2025-12-04T09:30:00Z\",\n    \"location\": \"Conference Room A\",\n    \"timezone\": \"America/New_York\",\n    \"eventType\": \"meeting\",\n    \"colorHex\": \"#3B82F6\",\n    \"attendees\": [\n        {\n            \"email\": \"john@example.com\",\n            \"name\": \"John Doe\",\n            \"status\": \"accepted\"\n        }\n    ],\n    \"reminders\": [\n        {\n            \"minutes\": 15,\n            \"type\": \"notification\"\n        }\n    ]\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/events",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "events"]
+                        },
+                        "description": "Create a new calendar event with conflict detection.\\n\\n**Body:**\\n- `title` (string, required): 1-200 characters\\n- `description` (string, optional): Max 2000 characters\\n- `startTime` (datetime, required): Event start\\n- `endTime` (datetime, required): Event end (must be after startTime)\\n- `location` (string, optional): Event location\\n- `timezone` (string, optional): Timezone (default: UTC)\\n- `isAllDay` (boolean, optional): All-day event flag\\n- `colorHex` (string, optional): Calendar color (#RRGGBB)\\n- `eventType` (string, optional): meeting, appointment, task, etc.\\n- `attendees` (array, optional): Participant details\\n- `reminders` (array, optional): Reminder settings\\n- `voiceTranscript` (string, optional): Voice command\\n- `estimatedDuration` (number, optional): Predicted duration in minutes\\n- `sentimentScore` (number, optional): -1.0 to 1.0"
+                    }
+                },
+                {
+                    "name": "Create Recurring Event",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\\n    \\\"title\\\": \\\"Weekly Team Sync\\\",\\n    \\\"description\\\": \\\"Weekly planning and coordination meeting\\\",\\n    \\\"startTime\\\": \\\"2025-12-09T14:00:00Z\\\",\\n    \\\"endTime\\\": \\\"2025-12-09T15:00:00Z\\\",\\n    \\\"location\\\": \\\"Virtual - Zoom\\\",\\n    \\\"timezone\\\": \\\"UTC\\\",\\n    \\\"eventType\\\": \\\"meeting\\\",\\n    \\\"colorHex\\\": \\\"#10B981\\\",\\n    \\\"recurrenceRule\\\": \\\"FREQ=WEEKLY;INTERVAL=1\\\",\\n    \\\"recurrenceEnd\\\": \\\"2026-03-09T15:00:00Z\\\",\\n    \\\"attendees\\\": [\\n        {\\n            \\\"email\\\": \\\"team@example.com\\\",\\n            \\\"name\\\": \\\"Team\\\",\\n            \\\"status\\\": \\\"pending\\\"\\n        }\\n    ]\\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/api/events/recurring",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["api", "events", "recurring"]
+                        },
+                        "description": "Create recurring event series.\\n\\n**Additional Fields:**\\n- `recurrenceRule` (string, required): RRULE format (FREQ=DAILY|WEEKLY|MONTHLY|YEARLY;INTERVAL=n)\\n- `recurrenceEnd` (datetime, optional): Series end date\\n- `exceptionDates` (array, optional): Skip dates (YYYY-MM-DD format)"
+                    }
+                },\n                {\n                    \"name\": \"Get All Events\",\n                    \"request\": {\n                        \"method\": \"GET\",\n                        \"header\": [],\n                        \"url\": {\n                            \"raw\": \"{{SCHEDULER_URL}}/api/events?startDate=2025-12-01T00:00:00Z&endDate=2025-12-31T23:59:59Z&page=1&limit=50\",\n                            \"host\": [\"{{SCHEDULER_URL}}\"],\n                            \"path\": [\"api\", \"events\"],\n                            \"query\": [\n                                {\n                                    \"key\": \"startDate\",\n                                    \"value\": \"2025-12-01T00:00:00Z\",\n                                    \"description\": \"Filter events starting from this date\"\n                                },\n                                {\n                                    \"key\": \"endDate\",\n                                    \"value\": \"2025-12-31T23:59:59Z\",\n                                    \"description\": \"Filter events ending before this date\"\n                                },\n                                {\n                                    \"key\": \"eventType\",\n                                    \"value\": \"meeting\",\n                                    \"description\": \"Filter by event type\",\n                                    \"disabled\": true\n                                },\n                                {\n                                    \"key\": \"isRecurring\",\n                                    \"value\": \"false\",\n                                    \"description\": \"Filter recurring events\",\n                                    \"disabled\": true\n                                },\n                                {\n                                    \"key\": \"search\",\n                                    \"value\": \"standup\",\n                                    \"description\": \"Search in title, description, location\",\n                                    \"disabled\": true\n                                },\n                                {\n                                    \"key\": \"page\",\n                                    \"value\": \"1\"\n                                },\n                                {\n                                    \"key\": \"limit\",\n                                    \"value\": \"50\"\n                                }\n                            ]\n                        },\n                        \"description\": \"Get all events with filters and pagination.\"\n                    }\n                },\n                {\n                    \"name\": \"Get Event by ID\",\n                    \"request\": {\n                        \"method\": \"GET\",\n                        \"header\": [],\n                        \"url\": {\n                            \"raw\": \"{{SCHEDULER_URL}}/api/events/{{EVENT_ID}}\",\n                            \"host\": [\"{{SCHEDULER_URL}}\"],\n                            \"path\": [\"api\", \"events\", \"{{EVENT_ID}}\"]\n                        },\n                        \"description\": \"Get detailed event information. For recurring events, includes parent/occurrences.\"\n                    }\n                },\n                {\n                    \"name\": \"Update Event\",\n                    \"request\": {\n                        \"method\": \"PUT\",\n                        \"header\": [\n                            {\n                                \"key\": \"Content-Type\",\n                                \"value\": \"application/json\"\n                            }\n                        ],\n                        \"body\": {\n                            \"mode\": \"raw\",\n                            \"raw\": \"{\\n    \\\"title\\\": \\\"Team Standup Meeting (Updated)\\\",\\n    \\\"startTime\\\": \\\"2025-12-04T09:15:00Z\\\",\\n    \\\"endTime\\\": \\\"2025-12-04T09:45:00Z\\\",\\n    \\\"location\\\": \\\"Conference Room B\\\"\\n}\"\n                        },\n                        \"url\": {\n                            \"raw\": \"{{SCHEDULER_URL}}/api/events/{{EVENT_ID}}\",\n                            \"host\": [\"{{SCHEDULER_URL}}\"],\n                            \"path\": [\"api\", \"events\", \"{{EVENT_ID}}\"]\n                        },\n                        \"description\": \"Update event details. Tracks reschedule count automatically.\"\n                    }\n                },\n                {\n                    \"name\": \"Delete Event\",\n                    \"request\": {\n                        \"method\": \"DELETE\",\n                        \"header\": [],\n                        \"url\": {\n                            \"raw\": \"{{SCHEDULER_URL}}/api/events/{{EVENT_ID}}?deleteAll=false\",\n                            \"host\": [\"{{SCHEDULER_URL}}\"],\n                            \"path\": [\"api\", \"events\", \"{{EVENT_ID}}\"],\n                            \"query\": [\n                                {\n                                    \"key\": \"deleteAll\",\n                                    \"value\": \"false\",\n                                    \"description\": \"For recurring events: true = delete series, false = delete single occurrence\"\n                                }\n                            ]\n                        },\n                        \"description\": \"Soft delete event (preserves data for AI training).\"\n                    }\n                },\n                {\n                    \"name\": \"Check Conflicts\",\n                    \"request\": {\n                        \"method\": \"POST\",\n                        \"header\": [\n                            {\n                                \"key\": \"Content-Type\",\n                                \"value\": \"application/json\"\n                            }\n                        ],\n                        \"body\": {\n                            \"mode\": \"raw\",\n                            \"raw\": \"{\\n    \\\"startTime\\\": \\\"2025-12-04T09:15:00Z\\\",\\n    \\\"endTime\\\": \\\"2025-12-04T10:00:00Z\\\",\\n    \\\"excludeEventId\\\": \\\"{{EVENT_ID}}\\\"\\n}\"\n                        },\n                        \"url\": {\n                            \"raw\": \"{{SCHEDULER_URL}}/api/events/conflicts\",\n                            \"host\": [\"{{SCHEDULER_URL}}\"],\n                            \"path\": [\"api\", \"events\", \"conflicts\"]\n                        },\n                        \"description\": \"Check for overlapping events in the given time range.\"\n                    }\n                },\n                {\n                    \"name\": \"Get Free/Busy Slots\",\n                    \"request\": {\n                        \"method\": \"GET\",\n                        \"header\": [],\n                        \"url\": {\n                            \"raw\": \"{{SCHEDULER_URL}}/api/events/free-busy?startDate=2025-12-04T00:00:00Z&endDate=2025-12-05T00:00:00Z\",\n                            \"host\": [\"{{SCHEDULER_URL}}\"],\n                            \"path\": [\"api\", \"events\", \"free-busy\"],\n                            \"query\": [\n                                {\n                                    \"key\": \"startDate\",\n                                    \"value\": \"2025-12-04T00:00:00Z\"\n                                },\n                                {\n                                    \"key\": \"endDate\",\n                                    \"value\": \"2025-12-05T00:00:00Z\"\n                                }\n                            ]\n                        },\n                        \"description\": \"Get busy time slots for scheduling.\"\n                    }\n                },\n                {\n                    \"name\": \"Get Event Statistics\",\n                    \"request\": {\n                        \"method\": \"GET\",\n                        \"header\": [],\n                        \"url\": {\n                            \"raw\": \"{{SCHEDULER_URL}}/api/events/stats\",\n                            \"host\": [\"{{SCHEDULER_URL}}\"],\n                            \"path\": [\"api\", \"events\", \"stats\"]\n                        },\n                        \"description\": \"Get event analytics for AI training (event type distribution, time preferences, reschedule patterns).\"\n                    }\n                },\n                {\n                    \"name\": \"Bulk Delete Events\",\n                    \"request\": {\n                        \"method\": \"POST\",\n                        \"header\": [\n                            {\n                                \"key\": \"Content-Type\",\n                                \"value\": \"application/json\"\n                            }\n                        ],\n                        \"body\": {\n                            \"mode\": \"raw\",\n                            \"raw\": \"{\\n    \\\"eventIds\\\": [\\\"event-id-1\\\", \\\"event-id-2\\\"],\\n    \\\"deleteRecurringSeries\\\": false\\n}\"\n                        },\n                        \"url\": {\n                            \"raw\": \"{{SCHEDULER_URL}}/api/events/bulk/delete\",\n                            \"host\": [\"{{SCHEDULER_URL}}\"],\n                            \"path\": [\"api\", \"events\", \"bulk\", \"delete\"]\n                        },\n                        \"description\": \"Delete multiple events at once.\"\n                    }\n                }\n            ],\n            \"description\": \"Calendar event management with recurring events, conflict detection, and AI-ready tracking\"\n        },\n        {\n            \"name\": \"🔧 Internal APIs\",
+            "item": [
+                {
+                    "name": "Create User (Internal)",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "X-Internal-API-Key",
+                                "value": "{{INTERNAL_API_KEY}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"TestPass123!@#\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/internal/users",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["internal", "users"]
+                        },
+                        "description": "Service-to-service user creation (for Gateway use)"
+                    }
+                },
+                {
+                    "name": "Get User by ID (Internal)",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-Internal-API-Key",
+                                "value": "{{INTERNAL_API_KEY}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/internal/users/{{USER_ID}}",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["internal", "users", "{{USER_ID}}"]
+                        },
+                        "description": "Get user by ID (service-to-service)"
+                    }
+                },
+                {
+                    "name": "Get User by Email (Internal)",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "X-Internal-API-Key",
+                                "value": "{{INTERNAL_API_KEY}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{SCHEDULER_URL}}/internal/users/email/{{USER_EMAIL}}",
+                            "host": ["{{SCHEDULER_URL}}"],
+                            "path": ["internal", "users", "email", "{{USER_EMAIL}}"]
+                        },
+                        "description": "Get user by email (service-to-service)"
+                    }
+                }
+            ],
+            "description": "Internal service-to-service APIs (require INTERNAL_API_KEY)"
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// Auto-inject access token for authenticated requests",
+                    "const accessToken = pm.environment.get('ACCESS_TOKEN');",
+                    "if (accessToken && pm.request.auth.type === 'bearer') {",
+                    "    pm.request.headers.add({",
+                    "        key: 'Authorization',",
+                    "        value: 'Bearer ' + accessToken",
+                    "    });",
+                    "}",
+                    "",
+                    "// Add X-User-Id header for direct Scheduler calls",
+                    "const userId = pm.environment.get('USER_ID');",
+                    "if (userId && pm.request.url.toString().includes('SCHEDULER_URL')) {",
+                    "    pm.request.headers.add({",
+                    "        key: 'X-User-Id',",
+                    "        value: userId",
+                    "    });",
+                    "}"
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// Global test to check response format",
+                    "pm.test('Response time is acceptable', function () {",
+                    "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                    "});",
+                    "",
+                    "if (pm.response.code >= 200 && pm.response.code < 300) {",
+                    "    pm.test('Response has success field', function () {",
+                    "        const jsonData = pm.response.json();",
+                    "        pm.expect(jsonData).to.have.property('success');",
+                    "    });",
+                    "}"
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "GATEWAY_URL",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "SCHEDULER_URL",
+            "value": "http://localhost:3001",
+            "type": "string"
+        },
+        {
+            "key": "ACCESS_TOKEN",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "REFRESH_TOKEN",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "USER_ID",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "USER_EMAIL",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "CATEGORY_ID",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "TASK_ID",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "EVENT_ID",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "INTERNAL_API_KEY",
+            "value": "96TDvSHYJATQsyzGdK2kY1WR8wp04hvrEzMoRD5uKCkTlSvIofe7uofakGdcujT9",
+            "type": "string"
+        }
+    ]
+}

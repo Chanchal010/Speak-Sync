@@ -1,0 +1,894 @@
+# Speak-Sync Project - Comprehensive Analysis
+
+## 📋 Executive Summary
+
+**Speak-Sync** is an AI-powered personal assistant application with voice interaction, task management, habit tracking, and intelligent scheduling. The project uses a **microservices architecture** with 5 backend services and a Flutter mobile app.
+
+**Status**: ✅ Backend fully deployed and operational | 🚧 Flutter app in development
+
+**Deployment**: Production server at `210.79.128.219`
+
+---
+
+## 🏗️ Architecture Overview
+
+### System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                     Flutter Mobile App                       │
+│              (Android/iOS - Riverpod + Dio)                  │
+└────────────────────┬────────────────────────────────────────┘
+                     │ HTTP/REST
+                     ↓
+┌─────────────────────────────────────────────────────────────┐
+│                  Gateway Service (Port 3000)                 │
+│         Express.js - Auth, Rate Limiting, Routing            │
+└─┬───────────────┬──────────────┬──────────────┬────────────┘
+  │               │              │              │
+  ↓               ↓              ↓              ↓
+┌─────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐
+│Scheduler│  │AI Brain  │  │Lifestyle │  │Worker Service│
+│(3001)   │  │(8000)    │  │(8001)    │  │(Background)  │
+└─────────┘  └──────────┘  └──────────┘  └──────────────┘
+     │            │             │               │
+     ↓            ↓             ↓               ↓
+┌──────────┐ ┌─────────┐  ┌─────────┐    ┌─────────┐
+│PostgreSQL│ │MongoDB  │  │MongoDB  │    │RabbitMQ │
+│+ Prisma  │ │+pgvector│  │         │    │         │
+└──────────┘ └─────────┘  └─────────┘    └─────────┘
+```
+
+### Technology Stack
+
+| Layer | Technologies |
+|-------|-------------|
+| **Mobile** | Flutter 3.38.4, Dart 3.10.3, Riverpod, Dio |
+| **Backend (Node.js)** | Express.js, TypeScript, Prisma, RabbitMQ |
+| **Backend (Python)** | FastAPI, Pydantic, Motor (MongoDB), pgvector |
+| **Databases** | PostgreSQL, MongoDB Atlas, Redis |
+| **AI/ML** | OpenAI Whisper (STT), Groq Llama 3.3 (LLM), OpenAI TTS |
+| **Message Queue** | RabbitMQ (AMQP) |
+| **Infrastructure** | Docker, Docker Compose, pnpm workspace |
+
+---
+
+## 🔧 Microservices Deep Dive
+
+### 1. Gateway Service (Port 3000)
+
+**Purpose**: API Gateway, authentication, request routing, service health monitoring
+
+**Tech Stack**:
+- Express.js + TypeScript
+- JWT authentication (jsonwebtoken)
+- Redis for rate limiting
+- Argon2 for password hashing
+- Axios for service proxying
+
+**Key Features**:
+- ✅ User registration & login
+- ✅ JWT token generation & validation
+- ✅ Service registry with health checks
+- ✅ Request proxying to microservices
+- ✅ CORS & security middleware (Helmet)
+- ⚠️ Rate limiting (commented out, ready to enable)
+
+**Routes**:
+```
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/refresh
+GET    /api/gateway/*           → AI Brain Service
+GET    /api/gateway/lifestyle/* → Lifestyle Service
+GET    /api/scheduler/*         → Scheduler Service
+```
+
+**Dependencies**:
+```json
+{
+  "express": "^4.21.2",
+  "jsonwebtoken": "^9.0.2",
+  "argon2": "^0.44.0",
+  "axios": "^1.7.9",
+  "ioredis": "^5.4.2",
+  "helmet": "^8.0.0",
+  "zod": "^4.1.13"
+}
+```
+
+**Key Files**:
+- [src/server.ts](file:///media/code-buddy/code/Projects/Speak-Sync/apps/gateway-service/src/server.ts) - Main entry point
+- [src/routes/auth.routes.ts](file:///media/code-buddy/code/Projects/Speak-Sync/apps/gateway-service/src/routes/auth.routes.ts) - Authentication endpoints
+- `src/services/service-registry.service.ts` - Service health monitoring
+- `src/middleware/error-handler.middleware.js` - Global error handling
+
+---
+
+### 2. Scheduler Service (Port 3001)
+
+**Purpose**: Task management, calendar events, scheduling optimization
+
+**Tech Stack**:
+- Express.js + TypeScript
+- Prisma ORM (PostgreSQL)
+- RabbitMQ for async messaging
+- date-fns for date manipulation
+
+**Key Features**:
+- ✅ Task CRUD with Eisenhower Matrix prioritization
+- ✅ Category management
+- ✅ Calendar events with conflict detection
+- ✅ Reminder scheduling (15-min intervals)
+- ✅ RabbitMQ event publishing
+- ✅ Soft delete support
+
+**Database Schema** (Prisma):
+```prisma
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  name       String
+  tasks      Task[]
+  categories Category[]
+  events     Event[]
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  priority    String   // VI, VNI, NVI, NVNI (Eisenhower)
+  status      String   // pending, in_progress, completed
+  dueDate     DateTime?
+  categoryId  String?
+  userId      String
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  startTime   DateTime
+  endTime     DateTime
+  description String?
+  userId      String
+}
+```
+
+**Routes**:
+```
+GET    /api/tasks              - List tasks with filters
+POST   /api/tasks              - Create task
+PUT    /api/tasks/:id          - Update task
+DELETE /api/tasks/:id          - Soft delete task
+GET    /api/categories         - List categories
+POST   /api/categories         - Create category
+GET    /api/events             - List events
+POST   /api/events             - Create event
+```
+
+**RabbitMQ Integration**:
+- Publishes events: `task.created`, `task.updated`, `event.created`
+- Exchanges: `scheduler.events`
+- Queues: `task-events`, `event-events`
+
+**Dependencies**:
+```json
+{
+  "@prisma/client": "^7.0.0",
+  "express": "^4.21.2",
+  "amqplib": "^0.10.9",
+  "date-fns": "^4.1.0",
+  "zod": "^4.1.13"
+}
+```
+
+---
+
+### 3. AI Brain Service (Port 8000)
+
+**Purpose**: Voice AI, natural language understanding, vector memory, ML predictions
+
+**Tech Stack**:
+- FastAPI + Python 3.11+
+- OpenAI Whisper (STT)
+- Groq Llama 3.3 70B (LLM)
+- OpenAI TTS
+- pgvector for semantic search
+- MongoDB for conversation history
+
+**Key Features**:
+- ✅ Speech-to-Text (Whisper API)
+- ✅ Text-to-Speech (OpenAI TTS with 6 voices)
+- ✅ Emotion-based TTS (alloy, echo, fable, onyx, nova, shimmer)
+- ✅ Natural Language Understanding (Groq LLM)
+- ✅ Vector memory with semantic search
+- ✅ Conversation context management
+- ✅ Intent recognition
+- 🚧 Habit prediction engine
+- 🚧 Smart scheduling ML
+
+**API Endpoints**:
+```
+POST   /api/ai/voice/transcribe         - STT (audio → text)
+POST   /api/ai/voice/synthesize          - TTS (text → audio)
+POST   /api/ai/voice/synthesize-emotion  - Emotion-based TTS
+GET    /api/ai/voice/voices              - List available voices
+POST   /api/ai/chat                      - NLU chat
+POST   /api/ai/conversation/start        - Start conversation
+POST   /api/ai/memory/store              - Store vector memory
+GET    /api/ai/memory/search             - Semantic search
+```
+
+**AI Models**:
+```python
+{
+  "STT": "whisper-1 (OpenAI)",
+  "LLM": "llama-3.3-70b-versatile (Groq)",
+  "TTS": "tts-1 (OpenAI)",
+  "Embeddings": "text-embedding-3-small (OpenAI)" # Currently at quota
+}
+```
+
+**Database**:
+- **PostgreSQL**: Vector embeddings (pgvector extension)
+- **MongoDB**: Conversation history, user context
+- **Redis**: Response caching
+
+**Dependencies**:
+```python
+{
+  "fastapi": "^0.115.0",
+  "openai": "^1.57.4",
+  "groq": "^0.12.0",
+  "motor": "^3.6.0",  # Async MongoDB
+  "asyncpg": "^0.30.0",  # PostgreSQL
+  "redis": "^5.2.1",
+  "pydantic": "^2.10.4"
+}
+```
+
+**Key Files**:
+- [src/main.py](file:///media/code-buddy/code/Projects/Speak-Sync/apps/ai-brain-service/src/main.py) - FastAPI app
+- `src/api/routes/voice.py` - Voice endpoints
+- `src/api/routes/chat.py` - Chat/NLU
+- `src/services/vector_memory_service.py` - Semantic memory
+- `src/ml/` - ML models (habit prediction, scheduling)
+
+---
+
+### 4. Lifestyle Service (Port 8001)
+
+**Purpose**: Habit tracking with 6 specialized habit types and AI-ready data collection
+
+**Tech Stack**:
+- FastAPI + Python
+- MongoDB (Motor - async driver)
+- RabbitMQ for event publishing
+- Pydantic for validation
+
+**Habit Types** (6 categories):
+
+#### 1. **Food Habit**
+- Meal logging (breakfast, lunch, dinner, snack)
+- Hunger/satisfaction levels
+- Eating speed, emotional state
+- Nutrition tracking (calories, macros)
+- **AI Insight**: Eating pattern correlation with mood/time
+
+#### 2. **Exercise Habit**
+- Activity type, duration, RPE (Rate of Perceived Exertion)
+- Post-activity energy levels
+- Recovery tracking
+- **AI Insight**: RPE vs energy → recovery block scheduling
+
+#### 3. **Financial Habit**
+- Transaction logging (expense/income/savings)
+- Necessity score (1-5: need vs want)
+- Mood-spending correlation
+- **AI Insight**: Impulse buy detection based on time + mood
+
+#### 4. **Sleep Habit**
+- Bedtime, wake time, sleep quality
+- Grogginess level (critical for chronotype)
+- Pre-sleep activity tracking
+- Sleep debt calculation
+- **AI Insight**: Chronotype detection (night owl vs early bird)
+
+#### 5. **Study Habit**
+- Scheduled vs actual time tracking
+- Flow state score
+- Deviation duration (stickiness factor)
+- Task integration (links to Scheduler service)
+- **AI Insight**: Time padding based on deviation ratio
+
+#### 6. **Water Habit**
+- Intake volume (ml)
+- Cognitive fog detection
+- Urine color (Armstrong scale)
+- **AI Insight**: Hydration checkpoint scheduling
+
+**Database Collections**:
+```
+habits          - Base habit configuration
+food_logs       - Food habit entries
+exercise_logs   - Exercise habit entries
+financial_logs  - Financial habit entries
+sleep_logs      - Sleep habit entries
+study_logs      - Study habit entries
+water_logs      - Water habit entries
+```
+
+**API Endpoints**:
+```
+POST   /api/habits                    - Create habit
+GET    /api/habits                    - List habits
+POST   /api/habits/:id/food-logs      - Log meal
+POST   /api/habits/:id/exercise-logs  - Log workout
+POST   /api/habits/:id/financial-logs - Log transaction
+POST   /api/habits/:id/sleep-logs     - Log sleep
+POST   /api/habits/:id/study-logs     - Log study session
+POST   /api/habits/:id/water-logs     - Log water intake
+GET    /api/analytics/patterns        - AI pattern analysis
+GET    /api/export/sheets             - Export to Google Sheets
+```
+
+**MongoDB Indexes**:
+```javascript
+// Optimized for queries
+{ user_id: 1, deleted_at: 1 }
+{ user_id: 1, habit_type: 1 }
+{ user_id: 1, timestamp: -1 }
+```
+
+**Dependencies**:
+```python
+{
+  "fastapi": "^0.115.0",
+  "motor": "^3.6.0",
+  "pydantic": "^2.10.4",
+  "pika": "^1.3.2"  # RabbitMQ
+}
+```
+
+---
+
+### 5. Worker Service
+
+**Purpose**: Background job processing, async task execution
+
+**Tech Stack**:
+- Node.js + TypeScript
+- RabbitMQ consumer
+- Bull (Redis-based job queue)
+
+**Key Features**:
+- ✅ RabbitMQ message consumption
+- ✅ Email notifications
+- ✅ Reminder processing
+- ✅ Data aggregation jobs
+- ✅ Scheduled cleanup tasks
+
+**Queues**:
+```
+task-events      - Task lifecycle events
+event-events     - Calendar event notifications
+habit-events     - Habit completion tracking
+email-queue      - Email sending
+```
+
+---
+
+## 📱 Flutter Mobile App
+
+### Architecture
+
+**Pattern**: Clean Architecture + Feature-based structure
+
+```
+lib/
+├── core/
+│   ├── config/          # API endpoints, environment
+│   ├── di/              # Dependency injection (GetIt)
+│   ├── network/         # Dio HTTP client + interceptors
+│   ├── storage/         # Secure storage (JWT tokens)
+│   └── utils/           # Helpers, extensions
+├── features/
+│   ├── auth/            # Login, registration
+│   ├── chat/            # AI conversations
+│   ├── tasks/           # Task management
+│   ├── calendar/        # Events & scheduling
+│   ├── habits/          # Habit tracking
+│   ├── voice/           # Voice interaction
+│   └── profile/         # User settings
+├── shared/
+│   ├── widgets/         # Reusable UI components
+│   ├── models/          # Shared data models
+│   └── theme/           # Material 3 theme
+└── routes/              # GoRouter navigation
+```
+
+### State Management
+
+**Riverpod** (chosen for type safety and modern approach)
+
+```dart
+// Example provider
+@riverpod
+class TasksNotifier extends _$TasksNotifier {
+  @override
+  Future<List<Task>> build() async {
+    return await ref.read(taskRepositoryProvider).getTasks();
+  }
+
+  Future<void> createTask(Task task) async {
+    await ref.read(taskRepositoryProvider).createTask(task);
+    ref.invalidateSelf();
+  }
+}
+```
+
+### Key Dependencies
+
+```yaml
+dependencies:
+  # State Management
+  flutter_riverpod: ^2.6.1
+  
+  # Networking
+  dio: ^5.7.0
+  retrofit: ^4.5.0
+  
+  # Storage
+  flutter_secure_storage: ^9.2.2
+  hive: ^2.2.3
+  
+  # Voice
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.0
+  record: ^5.1.0
+  
+  # UI
+  go_router: ^14.6.2
+  table_calendar: ^3.1.2
+  google_fonts: ^6.2.1
+  
+  # Code Generation
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+```
+
+### API Integration
+
+**Base URL**: `http://210.79.128.219:3000`
+
+```dart
+// API Configuration
+class ApiConfig {
+  static const String baseUrl = 'http://210.79.128.219:3000';
+  static const String gatewayUrl = '$baseUrl/api/gateway';
+  static const String schedulerUrl = '$baseUrl/api/scheduler';
+}
+
+// Dio Setup with JWT Interceptor
+final dio = Dio(BaseOptions(baseUrl: ApiConfig.baseUrl))
+  ..interceptors.add(AuthInterceptor());
+```
+
+### Features Status
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Authentication | ✅ Complete | JWT token management |
+| Task Management | ✅ Complete | CRUD, filters, categories |
+| Calendar Events | ✅ Complete | Conflict detection |
+| AI Chat | ✅ Complete | NLU integration |
+| Voice Interaction | ✅ Complete | STT, TTS |
+| Habit Tracking | 🚧 In Progress | UI implementation |
+| Push Notifications | 📋 Planned | FCM integration |
+
+---
+
+## 🗄️ Database Schemas
+
+### PostgreSQL (Scheduler Service)
+
+**Tables**:
+- `users` - User accounts
+- `tasks` - Task management
+- `categories` - Task categories
+- `events` - Calendar events
+- `reminders` - Scheduled reminders
+- `vector_embeddings` - Semantic search (pgvector)
+
+**Key Relationships**:
+```sql
+tasks.user_id → users.id
+tasks.category_id → categories.id
+events.user_id → users.id
+```
+
+### MongoDB (AI Brain Service)
+
+**Collections**:
+- `conversations` - Chat history
+- `user_context` - User preferences, chronotype
+- `intent_logs` - NLU training data
+
+### MongoDB (Lifestyle Service)
+
+**Collections**:
+- `habits` - Habit configurations
+- `food_logs`, `exercise_logs`, `financial_logs`
+- `sleep_logs`, `study_logs`, `water_logs`
+
+---
+
+## 🔄 Inter-Service Communication
+
+### RabbitMQ Event Flow
+
+```
+Scheduler Service → RabbitMQ → Worker Service
+                              → AI Brain Service (analytics)
+                              → Lifestyle Service (study habit)
+
+Lifecycle Service → RabbitMQ → AI Brain Service (pattern analysis)
+```
+
+**Event Types**:
+```javascript
+{
+  "task.created": { taskId, userId, title, priority },
+  "task.completed": { taskId, userId, completedAt },
+  "event.created": { eventId, userId, startTime },
+  "habit.logged": { habitId, userId, habitType, data }
+}
+```
+
+---
+
+## 🚀 Development Workflow
+
+### Local Setup
+
+```bash
+# 1. Install dependencies
+pnpm install
+
+# 2. Setup environment
+cp .env.example .env
+# Edit .env with your credentials
+
+# 3. Start services
+pnpm dev:gateway       # Terminal 1 (Port 3000)
+pnpm dev:scheduler     # Terminal 2 (Port 3001)
+pnpm dev:worker        # Terminal 3
+
+# Python services
+cd apps/ai-brain-service && uvicorn src.main:app --reload --port 8000
+cd apps/lifestyle-service && uvicorn src.main:app --reload --port 8001
+
+# 4. Run Flutter app
+cd flutter/speak_sync_app
+flutter pub get
+flutter run
+```
+
+### Docker Deployment
+
+```bash
+# Production deployment
+docker-compose -f docker-compose.prod.yml up -d
+
+# Development
+docker-compose up -d
+```
+
+---
+
+## 📊 Project Status & Roadmap
+
+### ✅ Completed (Phases 1-4)
+
+- [x] Gateway Service with authentication
+- [x] Scheduler Service (tasks + events)
+- [x] AI Brain Service (STT, TTS, NLU)
+- [x] Lifestyle Service (6 habit types)
+- [x] Worker Service (background jobs)
+- [x] RabbitMQ event system
+- [x] Flutter app foundation
+- [x] Production deployment
+
+### 🚧 In Progress
+
+- [ ] Flutter habit tracking UI
+- [ ] AI pattern analysis (ML models)
+- [ ] Smart scheduling optimization
+- [ ] Chronotype-based task scheduling
+
+### 📋 Planned (Future Phases)
+
+- [ ] Push notifications (FCM)
+- [ ] Offline support in Flutter
+- [ ] Advanced analytics dashboard
+- [ ] Export to Google Sheets
+- [ ] Multi-language support
+- [ ] iOS app deployment
+
+---
+
+## 🔐 Security Implementation
+
+### Authentication Flow
+
+```
+1. User registers → Gateway hashes password (Argon2)
+2. User logs in → Gateway validates & issues JWT
+3. Client stores JWT in secure storage
+4. All requests include: Authorization: Bearer <JWT>
+5. Gateway validates JWT before proxying
+6. Token refresh on 401 response
+```
+
+### Security Features
+
+- ✅ Argon2 password hashing
+- ✅ JWT with expiration
+- ✅ Secure token storage (Flutter Secure Storage)
+- ✅ CORS configuration
+- ✅ Helmet.js security headers
+- ⚠️ Rate limiting (ready to enable)
+- 📋 Certificate pinning (planned)
+
+---
+
+## 📈 Performance Considerations
+
+### Optimizations
+
+1. **Database Indexing**:
+   - MongoDB: Compound indexes on `user_id + timestamp`
+   - PostgreSQL: B-tree indexes on foreign keys
+
+2. **Caching**:
+   - Redis for API responses
+   - Hive for Flutter local cache
+
+3. **Async Processing**:
+   - RabbitMQ for non-blocking operations
+   - Background workers for heavy tasks
+
+4. **API Efficiency**:
+   - Pagination on list endpoints
+   - Lazy loading in Flutter
+   - Image caching (cached_network_image)
+
+---
+
+## 🧪 Testing Strategy
+
+### Backend Testing
+
+```bash
+# Unit tests
+pnpm test:all
+
+# Integration tests
+pnpm test:integration
+
+# API testing
+# Use Postman collection in docs/api/
+```
+
+### Flutter Testing
+
+```bash
+# Unit tests
+flutter test
+
+# Widget tests
+flutter test test/widgets/
+
+# Integration tests
+flutter test integration_test/
+```
+
+---
+
+## 📚 Documentation
+
+### Available Docs
+
+- [README.md](file:///media/code-buddy/code/Projects/Speak-Sync/README.md) - Quick start guide
+- [DEPLOY.md](file:///media/code-buddy/code/Projects/Speak-Sync/DEPLOY.md) - Deployment instructions
+- [docs/PHASE_4_COMPREHENSIVE_ANALYSIS.md](file:///media/code-buddy/code/Projects/Speak-Sync/docs/PHASE_4_COMPREHENSIVE_ANALYSIS.md) - Lifestyle service architecture
+- [docs/FLUTTER_APP_PLAN.md](file:///media/code-buddy/code/Projects/Speak-Sync/docs/FLUTTER_APP_PLAN.md) - Flutter development plan
+- [docs/api/](file:///media/code-buddy/code/Projects/Speak-Sync/docs/api) - API documentation
+- [docs/architecture/](file:///media/code-buddy/code/Projects/Speak-Sync/docs/architecture) - System design docs
+
+---
+
+## 🎯 Key Insights & Recommendations
+
+### Strengths
+
+1. ✅ **Well-structured microservices** - Clear separation of concerns
+2. ✅ **Modern tech stack** - Latest versions of frameworks
+3. ✅ **Comprehensive habit tracking** - 6 specialized types with AI-ready data
+4. ✅ **Event-driven architecture** - RabbitMQ for scalability
+5. ✅ **Production-ready** - Deployed and operational
+
+### Areas for Improvement
+
+1. ⚠️ **Testing Coverage** - Need more unit/integration tests
+2. ⚠️ **Error Handling** - Enhance error messages and logging
+3. ⚠️ **API Documentation** - Add OpenAPI/Swagger specs
+4. ⚠️ **Monitoring** - Implement APM (Application Performance Monitoring)
+5. ⚠️ **Rate Limiting** - Enable in production
+
+### Next Development Priorities
+
+1. **Complete Flutter Habit Tracking UI** - Implement all 6 habit types
+2. **AI Pattern Analysis** - Activate ML models for insights
+3. **Smart Scheduling** - Chronotype-based optimization
+4. **Push Notifications** - Real-time reminders
+5. **Testing** - Increase coverage to 80%+
+
+---
+
+## 🔗 Integration Points
+
+### Service Dependencies
+
+```
+Gateway ←→ All Services (HTTP)
+Scheduler ←→ RabbitMQ ←→ Worker
+Scheduler ←→ PostgreSQL
+AI Brain ←→ PostgreSQL + MongoDB + Redis
+Lifestyle ←→ MongoDB + RabbitMQ
+Flutter App ←→ Gateway (REST API)
+```
+
+### External APIs
+
+- **OpenAI**: Whisper (STT), TTS, Embeddings
+- **Groq**: Llama 3.3 (LLM)
+- **Google Sheets**: Export functionality (planned)
+- **FCM**: Push notifications (planned)
+
+---
+
+## 📞 API Endpoints Summary
+
+### Gateway (3000)
+```
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/refresh
+```
+
+### Scheduler (via Gateway)
+```
+GET    /api/scheduler/tasks
+POST   /api/scheduler/tasks
+GET    /api/scheduler/events
+POST   /api/scheduler/events
+GET    /api/scheduler/categories
+```
+
+### AI Brain (via Gateway)
+```
+POST   /api/gateway/ai/voice/transcribe
+POST   /api/gateway/ai/voice/synthesize
+POST   /api/gateway/ai/chat
+GET    /api/gateway/ai/memory/search
+```
+
+### Lifestyle (via Gateway)
+```
+POST   /api/gateway/lifestyle/habits
+GET    /api/gateway/lifestyle/habits
+POST   /api/gateway/lifestyle/habits/:id/food-logs
+POST   /api/gateway/lifestyle/habits/:id/exercise-logs
+GET    /api/gateway/lifestyle/analytics/patterns
+```
+
+---
+
+## 🛠️ Development Tools
+
+### Shared Packages
+
+Located in [packages/](file:///media/code-buddy/code/Projects/Speak-Sync/packages):
+
+1. **@speak-sync/common** - Shared utilities, types
+2. **@speak-sync/ai-clients** - AI service clients
+3. **@speak-sync/event-schemas** - RabbitMQ event schemas
+
+### Scripts
+
+```bash
+# Root package.json
+pnpm dev:gateway      # Start gateway
+pnpm dev:scheduler    # Start scheduler
+pnpm dev:worker       # Start worker
+pnpm build:all        # Build all services
+pnpm test:all         # Run all tests
+pnpm lint:all         # Lint all code
+```
+
+---
+
+## 📦 Deployment
+
+### Production Server
+
+**IP**: `210.79.128.219`
+
+**Services**:
+- Gateway: Port 3000
+- Scheduler: Port 3001
+- AI Brain: Port 8000
+- Lifestyle: Port 8001
+
+### Docker Compose
+
+```yaml
+services:
+  gateway:
+    build: ./apps/gateway-service
+    ports: ["3000:3000"]
+  
+  scheduler:
+    build: ./apps/scheduler-service
+    ports: ["3001:3001"]
+  
+  ai-brain:
+    build: ./apps/ai-brain-service
+    ports: ["8000:8000"]
+  
+  lifestyle:
+    build: ./apps/lifestyle-service
+    ports: ["8001:8001"]
+```
+
+---
+
+## 🎓 Learning Resources
+
+### For New Developers
+
+1. **Microservices**: Start with Gateway → Scheduler
+2. **Python Services**: AI Brain has best examples
+3. **Flutter**: Follow [docs/FLUTTER_APP_PLAN.md](file:///media/code-buddy/code/Projects/Speak-Sync/docs/FLUTTER_APP_PLAN.md)
+4. **RabbitMQ**: Check `apps/scheduler-service/src/lib/rabbitmq/`
+
+### Code Examples
+
+Best reference files:
+- Auth: `apps/gateway-service/src/routes/auth.routes.ts`
+- Tasks: `apps/scheduler-service/src/controllers/tasks.controller.ts`
+- Voice: `apps/ai-brain-service/src/api/routes/voice.py`
+- Habits: `apps/lifestyle-service/src/api/routes/habits.py`
+
+---
+
+## 📝 Conclusion
+
+Speak-Sync is a **well-architected, production-ready** AI personal assistant with:
+
+- ✅ 5 microservices (3 Node.js, 2 Python)
+- ✅ Comprehensive habit tracking (6 types)
+- ✅ Voice AI with STT, LLM, TTS
+- ✅ Event-driven architecture (RabbitMQ)
+- ✅ Flutter mobile app (in progress)
+- ✅ Deployed and operational
+
+**Ready for continued development** with clear roadmap and solid foundation.
+
+---
+
+*Analysis Date: January 12, 2026*
+*Project Version: 1.0.0*

@@ -18,10 +18,13 @@ _nlu_service_instance: Optional['NLUService'] = None
 # Intent categories for LifeOS domains
 INTENT_CATEGORIES = {
     "scheduling": ["create_task", "update_task", "delete_task", "query_schedule", "find_free_time"],
+    "calendar": ["create_event", "update_event", "delete_event", "query_events"],
     "exercise": ["log_exercise", "query_workout", "set_fitness_goal", "track_progress"],
     "finance": ["log_expense", "log_income", "query_budget", "financial_advice"],
     "sleep": ["log_sleep", "query_sleep_pattern", "sleep_advice"],
-    "productivity": ["start_timer", "track_habit", "productivity_stats"],
+    "food": ["log_food", "query_meals"],
+    "study": ["log_study", "query_study_sessions"],
+    "productivity": ["start_timer", "track_habit", "query_habits", "productivity_stats"],
     "hydration": ["log_water", "set_water_goal", "hydration_reminder"],
     "general": ["greeting", "goodbye", "help", "thanks", "chitchat"]
 }
@@ -81,24 +84,37 @@ class NLUService:
                 messages=[
                     {
                         "role": "system",
-                        "content": """You are an intent detection AI for a life management system (LifeOS).
-Analyze user input and return a JSON response with:
-- intent: specific action (e.g., create_task, log_exercise)
-- domain: category (scheduling, exercise, finance, sleep, productivity, hydration, general)
-- confidence: 0-1 score
-- entities: extracted data (dates, amounts, names, etc.)
-- response_suggestion: brief conversational response
+                        "content": """You are JARVIS — the AI intent detection engine for Speak-Sync, a personal life management app.
+Your job: analyze what the user wants and return structured JSON.
+
+Return JSON with these fields:
+- intent: specific action (see list below)
+- domain: category domain
+- confidence: 0.0 to 1.0 score
+- entities: all extracted data (dates as ISO, times as HH:MM, amounts as numbers, durations in minutes)
+- response_suggestion: a SHORT, natural, conversational acknowledgement (1-2 sentences max)
 
 Available intents by domain:
 - scheduling: create_task, update_task, delete_task, query_schedule, find_free_time
+- calendar: create_event, update_event, delete_event, query_events
 - exercise: log_exercise, query_workout, set_fitness_goal, track_progress
 - finance: log_expense, log_income, query_budget, financial_advice
+- food: log_food, query_meals
+- study: log_study, query_study_sessions
 - sleep: log_sleep, query_sleep_pattern, sleep_advice
-- productivity: start_timer, track_habit, productivity_stats
+- productivity: start_timer, track_habit, query_habits, productivity_stats
 - hydration: log_water, set_water_goal, hydration_reminder
 - general: greeting, goodbye, help, thanks, chitchat
 
-Be conversational, not interrogational. Respond naturally."""
+IMPORTANT RULES:
+1. NEVER interrogate the user. If data is missing, infer smart defaults.
+2. Extract "tomorrow", "today", "next week" etc. as relative date strings.
+3. Infer mood from emotional language (e.g., "killed me" → intensity high, "great" → positive).
+4. Infer categories from context (e.g., "bought a jacket" → clothing, "had chai" → food/beverage).
+5. When amounts mention rupees/bucks/rs, extract as numeric INR amounts.
+6. For durations, extract "an hour" as 60, "half hour" as 30, etc.
+7. If user is just chatting/venting, set intent to "chitchat" — DO NOT force a task.
+8. Match the user's energy in response_suggestion — casual if they're casual, enthusiastic if they're excited."""
                     },
                     {
                         "role": "user",
@@ -110,7 +126,7 @@ Be conversational, not interrogational. Respond naturally."""
             )
             
             # Parse response - extract JSON from response
-            content = response.choices[0].message.content
+            content = response.choices[0].message.content.strip()
             
             # Try to extract JSON if it's wrapped in markdown or text
             if "```json" in content:
@@ -118,10 +134,44 @@ Be conversational, not interrogational. Respond naturally."""
             elif "```" in content:
                 content = content.split("```")[1].split("```")[0].strip()
             
-            # Parse JSON
-            result = json.loads(content)
+            # Remove any leading/trailing text that isn't JSON
+            # Find the first { and last }
+            json_start = content.find('{')
+            json_end = content.rfind('}')
+            if json_start != -1 and json_end != -1:
+                content = content[json_start:json_end + 1]
             
-            logger.info(f"Intent detected: {result.get('intent')} (domain: {result.get('domain')})")
+            # Fix common LLM JSON issues: trailing commas before }
+            import re
+            content = re.sub(r',\s*}', '}', content)
+            content = re.sub(r',\s*]', ']', content)
+            
+            # Parse JSON
+            try:
+                result = json.loads(content)
+            except json.JSONDecodeError as parse_err:
+                logger.warning(f"JSON parse failed, trying cleanup: {parse_err}")
+                logger.warning(f"Raw LLM content: {response.choices[0].message.content[:500]}")
+                
+                # Last resort: try to extract key fields via regex
+                intent_match = re.search(r'"intent"\s*:\s*"([^"]+)"', content)
+                domain_match = re.search(r'"domain"\s*:\s*"([^"]+)"', content)
+                conf_match = re.search(r'"confidence"\s*:\s*([\d.]+)', content)
+                resp_match = re.search(r'"response_suggestion"\s*:\s*"([^"]*)"', content)
+                
+                if intent_match:
+                    result = {
+                        "intent": intent_match.group(1),
+                        "domain": domain_match.group(1) if domain_match else "general",
+                        "confidence": float(conf_match.group(1)) if conf_match else 0.7,
+                        "entities": {},
+                        "response_suggestion": resp_match.group(1) if resp_match else "Got it!"
+                    }
+                    logger.info(f"Recovered intent via regex: {result['intent']}")
+                else:
+                    raise parse_err
+            
+            logger.info(f"Intent detected: {result.get('intent')} (domain: {result.get('domain')}, confidence: {result.get('confidence')})")
             
             return result
         
@@ -219,22 +269,30 @@ Example: {{"dates": ["2025-12-05"], "times": ["14:30"], "amounts": [50.0]}}"""
             messages = [
                 {
                     "role": "system",
-                    "content": """You are a friendly AI assistant for LifeOS (Life Operating System).
-Be conversational, empathetic, and helpful. Follow these principles:
-1. Be conversational, not interrogational
-2. Show understanding and empathy
-3. Ask clarifying questions naturally when needed
-4. Provide actionable suggestions
-5. Keep responses concise (2-3 sentences)
-6. Match the user's energy and tone
+                    "content": """You are JARVIS — the AI voice assistant for Speak-Sync, like Iron Man's JARVIS.
+You're talking to the user through voice. Be their intelligent life companion.
 
-Domains you help with:
-- Task scheduling and time management
-- Exercise and fitness tracking
-- Financial management
-- Sleep quality monitoring
-- Productivity and habit tracking
-- Hydration reminders"""
+PERSONALITY RULES:
+1. Be CONVERSATIONAL — talk like a helpful friend, NOT a data-entry form
+2. NEVER ask multiple questions at once. One soft follow-up at most.
+3. Show genuine care — "Nice!", "That's awesome!", "Hope it was good!"
+4. Keep responses SHORT — 1-2 sentences max (this gets spoken aloud)
+5. Match the user's energy — casual if casual, enthusiastic if excited
+6. If an action was performed, confirm it naturally ("Done!", "Got it!", "Logged!")
+7. Infer what you can — don't ask for data the user didn't offer
+8. Use the user's language style — mix Hindi/English if they do (hinglish)
+
+You help with:
+- Tasks & to-do management
+- Calendar events & scheduling
+- Exercise & fitness tracking
+- Financial tracking (expenses/income)
+- Sleep tracking
+- Food & meal logging
+- Water intake
+- Study sessions
+- Habit tracking
+- Daily reports & insights"""
                 }
             ]
             

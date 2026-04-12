@@ -37,14 +37,16 @@ class ConversationResponse(BaseModel):
     """Response from conversation endpoint"""
     session_id: str
     turn: int
+    transcription: Optional[Dict] = None
     understanding: Dict
+    action_result: Optional[Dict] = None
     response: Dict
     audio: Optional[Dict] = None
     audio_base64: Optional[str] = None
 
 
 # Endpoints
-@router.post("/voice", response_model=ConversationResponse)
+@router.post("/voice")
 async def voice_conversation(
     audio: UploadFile = File(..., description="Audio file (wav, mp3, m4a, webm, ogg, flac)"),
     user_id: str = "default_user",

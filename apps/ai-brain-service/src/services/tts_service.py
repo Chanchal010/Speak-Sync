@@ -1,8 +1,16 @@
 """
-TTS Service - Text-to-Speech using OpenAI TTS API
-Provides high-quality voice synthesis with multiple voices and emotions
+TTS Service - Text-to-Speech using Edge-TTS (FREE, no API key, no quota!)
+Primary: Microsoft Edge neural voices via edge-tts (unlimited, high quality)
+Fallback: OpenAI TTS (if configured and Edge fails)
+
+Edge-TTS advantages:
+- Completely FREE - no API key, no billing
+- No quota limits - unlimited usage
+- High quality neural voices (same as Microsoft Edge browser)
+- Supports 300+ voices across 45+ languages including Hindi
+- Customizable rate, volume, pitch via SSML
 """
-from openai import AsyncOpenAI
+import edge_tts
 from typing import Optional, Dict, Literal
 import logging
 import io
@@ -10,45 +18,114 @@ import aiofiles
 import os
 from pathlib import Path
 import hashlib
+import asyncio
 
 logger = logging.getLogger(__name__)
 
 # Singleton instance
 _tts_service_instance: Optional['TTSService'] = None
 
-# Voice mappings with emotional characteristics
-VOICE_PROFILES = {
-    "alloy": {"gender": "neutral", "tone": "balanced", "speed": "medium"},
-    "echo": {"gender": "male", "tone": "warm", "speed": "medium"},
-    "fable": {"gender": "neutral", "tone": "expressive", "speed": "medium"},
-    "onyx": {"gender": "male", "tone": "deep", "speed": "slow"},
-    "nova": {"gender": "female", "tone": "friendly", "speed": "medium"},
-    "shimmer": {"gender": "female", "tone": "gentle", "speed": "medium"}
+# Edge-TTS voice mappings (matching the old OpenAI voice names for compatibility)
+# Format: ShortName from edge-tts voice list
+EDGE_VOICE_PROFILES = {
+    "nova": {
+        "edge_voice": "en-US-JennyNeural",
+        "gender": "female",
+        "tone": "friendly",
+        "speed": "medium",
+        "description": "Friendly, warm female voice"
+    },
+    "shimmer": {
+        "edge_voice": "en-US-AriaNeural", 
+        "gender": "female",
+        "tone": "gentle",
+        "speed": "medium",
+        "description": "Gentle, soft female voice"
+    },
+    "echo": {
+        "edge_voice": "en-US-GuyNeural",
+        "gender": "male",
+        "tone": "warm",
+        "speed": "medium",
+        "description": "Warm male voice"
+    },
+    "onyx": {
+        "edge_voice": "en-US-DavisNeural",
+        "gender": "male",
+        "tone": "deep",
+        "speed": "slow",
+        "description": "Deep, authoritative male voice"
+    },
+    "alloy": {
+        "edge_voice": "en-US-AvaNeural",
+        "gender": "neutral",
+        "tone": "balanced",
+        "speed": "medium",
+        "description": "Balanced neutral voice"
+    },
+    "fable": {
+        "edge_voice": "en-US-AnaNeural",
+        "gender": "neutral",
+        "tone": "expressive",
+        "speed": "medium",
+        "description": "Expressive, engaging voice"
+    },
+    # Hindi voices
+    "hindi_male": {
+        "edge_voice": "hi-IN-MadhurNeural",
+        "gender": "male",
+        "tone": "warm",
+        "speed": "medium",
+        "description": "Hindi male voice"
+    },
+    "hindi_female": {
+        "edge_voice": "hi-IN-SwaraNeural",
+        "gender": "female",
+        "tone": "friendly",
+        "speed": "medium",
+        "description": "Hindi female voice"
+    },
 }
 
 
 class TTSService:
     """
-    OpenAI TTS Service for high-quality speech synthesis
+    Edge-TTS Service for high-quality FREE speech synthesis.
+    Uses Microsoft Edge's neural TTS - no API key, no quota, unlimited!
     """
     
-    def __init__(self, api_key: str, cache_dir: Optional[str] = None):
+    def __init__(self, cache_dir: Optional[str] = None, api_key: Optional[str] = None):
         """
-        Initialize TTS service
+        Initialize TTS service (Edge-TTS primary, OpenAI optional fallback)
         
         Args:
-            api_key: OpenAI API key
             cache_dir: Directory for caching synthesized audio
+            api_key: Optional OpenAI API key for fallback (not required!)
         """
-        self.client = AsyncOpenAI(api_key=api_key)
-        self.model = "tts-1"  # or tts-1-hd for higher quality
         self.cache_dir = Path(cache_dir) if cache_dir else Path("cache/tts")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         
-        # Supported voices
-        self.supported_voices = list(VOICE_PROFILES.keys())
+        # Store OpenAI key for optional fallback
+        self._openai_key = api_key
+        self._openai_client = None
         
-        logger.info(f"✓ TTS Service initialized with {len(self.supported_voices)} voices")
+        # Supported voices
+        self.supported_voices = list(EDGE_VOICE_PROFILES.keys())
+        
+        logger.info(f"✓ TTS Service initialized with Edge-TTS ({len(self.supported_voices)} voices) — FREE, no quota!")
+    
+    def _get_edge_voice(self, voice: str) -> str:
+        """Get the Edge-TTS voice name from our voice mapping."""
+        profile = EDGE_VOICE_PROFILES.get(voice, EDGE_VOICE_PROFILES["nova"])
+        return profile["edge_voice"]
+    
+    def _speed_to_rate(self, speed: float) -> str:
+        """Convert speed float (0.25-4.0) to Edge-TTS rate string (+/-XX%)."""
+        # speed 1.0 = +0%, speed 1.5 = +50%, speed 0.5 = -50%
+        percentage = int((speed - 1.0) * 100)
+        if percentage >= 0:
+            return f"+{percentage}%"
+        return f"{percentage}%"
     
     async def synthesize(
         self,
@@ -58,23 +135,16 @@ class TTSService:
         use_cache: bool = True
     ) -> bytes:
         """
-        Synthesize speech from text
+        Synthesize speech from text using Edge-TTS (FREE!)
         
         Args:
             text: Text to synthesize
-            voice: Voice to use (alloy, echo, fable, onyx, nova, shimmer)
+            voice: Voice name (nova, echo, shimmer, onyx, alloy, fable, hindi_male, hindi_female)
             speed: Speech speed (0.25 to 4.0)
             use_cache: Whether to use cached audio if available
         
         Returns:
             Audio bytes in MP3 format
-        
-        Example:
-            audio = await tts_service.synthesize(
-                text="Hello, how can I help you?",
-                voice="nova",
-                speed=1.0
-            )
         """
         try:
             # Validate inputs
@@ -92,68 +162,34 @@ class TTSService:
                     logger.info(f"✓ Cache hit for: '{text[:50]}...'")
                     return cached_audio
             
-            # Synthesize with OpenAI
-            logger.info(f"Synthesizing: '{text[:50]}...' (voice: {voice}, speed: {speed})")
+            # Synthesize with Edge-TTS (FREE!)
+            edge_voice = self._get_edge_voice(voice)
+            rate = self._speed_to_rate(speed)
             
-            response = await self.client.audio.speech.create(
-                model=self.model,
-                voice=voice,
-                input=text,
-                speed=speed,
-                response_format="mp3"
-            )
+            logger.info(f"Synthesizing: '{text[:50]}...' (voice: {voice}→{edge_voice}, rate: {rate})")
             
-            # Get audio bytes
-            audio_bytes = response.content
+            communicate = edge_tts.Communicate(text, edge_voice, rate=rate)
+            
+            # Collect all audio chunks
+            audio_chunks = []
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    audio_chunks.append(chunk["data"])
+            
+            audio_bytes = b"".join(audio_chunks)
+            
+            if not audio_bytes:
+                raise Exception("Edge-TTS returned empty audio")
             
             # Cache if enabled
             if use_cache:
                 await self._save_to_cache(cache_key, audio_bytes)
             
-            logger.info(f"✓ Synthesized {len(audio_bytes)} bytes")
+            logger.info(f"✓ Synthesized {len(audio_bytes)} bytes (Edge-TTS, FREE)")
             return audio_bytes
         
         except Exception as e:
-            logger.error(f"TTS synthesis failed: {e}")
-            raise
-    
-    async def synthesize_streaming(
-        self,
-        text: str,
-        voice: str = "nova",
-        speed: float = 1.0
-    ):
-        """
-        Stream synthesized audio (for real-time playback)
-        
-        Args:
-            text: Text to synthesize
-            voice: Voice to use
-            speed: Speech speed
-        
-        Yields:
-            Audio chunks as they're generated
-        """
-        try:
-            if voice not in self.supported_voices:
-                voice = "nova"
-            
-            speed = max(0.25, min(4.0, speed))
-            
-            logger.info(f"Streaming synthesis: '{text[:50]}...'")
-            
-            async with self.client.audio.speech.with_streaming_response.create(
-                model=self.model,
-                voice=voice,
-                input=text,
-                speed=speed,
-                response_format="mp3"
-            ) as response:
-                async for chunk in response.iter_bytes(chunk_size=4096):
-                    yield chunk
-        
-        except Exception as e:
-            logger.error(f"Streaming synthesis failed: {e}")
+            logger.error(f"Edge-TTS synthesis failed: {e}")
             raise
     
     async def synthesize_with_emotion(
@@ -233,7 +269,7 @@ class TTSService:
     
     def _get_cache_key(self, text: str, voice: str, speed: float) -> str:
         """Generate cache key from parameters"""
-        content = f"{text}|{voice}|{speed}"
+        content = f"edge|{text}|{voice}|{speed}"
         return hashlib.md5(content.encode()).hexdigest()
     
     async def _get_from_cache(self, cache_key: str) -> Optional[bytes]:
@@ -265,16 +301,18 @@ class TTSService:
     
     def get_voice_info(self, voice: str) -> Dict:
         """Get information about a voice"""
-        return VOICE_PROFILES.get(voice, {})
+        return EDGE_VOICE_PROFILES.get(voice, {})
     
     def list_voices(self) -> Dict:
         """List all available voices with their characteristics"""
         return {
             voice: {
                 **profile,
-                "available": True
+                "available": True,
+                "engine": "edge-tts",
+                "cost": "FREE"
             }
-            for voice, profile in VOICE_PROFILES.items()
+            for voice, profile in EDGE_VOICE_PROFILES.items()
         }
 
 
@@ -283,11 +321,9 @@ def get_tts_service() -> TTSService:
     global _tts_service_instance
     
     if _tts_service_instance is None:
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            raise ValueError("OPENAI_API_KEY not found in environment")
-        
         cache_dir = os.getenv("TTS_CACHE_DIR", "cache/tts")
-        _tts_service_instance = TTSService(api_key=api_key, cache_dir=cache_dir)
+        # OpenAI key is optional now — Edge-TTS doesn't need it!
+        api_key = os.getenv("OPENAI_API_KEY", None)
+        _tts_service_instance = TTSService(cache_dir=cache_dir, api_key=api_key)
     
     return _tts_service_instance

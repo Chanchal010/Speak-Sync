@@ -11,6 +11,7 @@ import json
 from src.services.voice_service import get_voice_service
 from src.services.nlu_service import get_nlu_service
 from src.services.tts_service import get_tts_service
+from src.services.action_executor_service import get_action_executor
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,8 @@ class ConversationState:
         self.awaiting_clarification = False
         self.last_intent: Optional[str] = None
         self.last_entities: Dict = {}
+        self.is_first_interaction = True  # Track first-time greeting
+        self.pending_action: Optional[Dict] = None  # For multi-turn follow-ups
         
     def update_activity(self):
         """Update last activity timestamp"""
@@ -54,6 +57,10 @@ class ConversationService:
         self.voice_service = get_voice_service()
         self.nlu_service = get_nlu_service()
         self.tts_service = get_tts_service()
+        self.action_executor = get_action_executor()
+        
+        # Track which users have interacted before (in-memory for now)
+        self._greeted_users: set = set()
         
         # Active conversation sessions
         self.active_sessions: Dict[str, ConversationState] = {}
@@ -149,8 +156,33 @@ class ConversationService:
             transcript_text = transcription["text"]
             logger.info(f"[{session.session_id}] Transcribed: {transcript_text}")
             
-            # Step 2: Natural Language Understanding
+            # Step 2: Check for first-time greeting
+            is_first_time = user_id not in self._greeted_users
+            if is_first_time:
+                self._greeted_users.add(user_id)
+                session.is_first_interaction = True
+                session.context["is_first_interaction"] = True
+            else:
+                session.is_first_interaction = False
+                session.context["is_first_interaction"] = False
+            
+            # Step 3: Natural Language Understanding
             logger.info(f"[{session.session_id}] Step 2: Understanding intent...")
+            
+            # Enrich context with time of day for greeting style
+            now = datetime.now()
+            hour = now.hour
+            if hour < 12:
+                time_of_day = "morning"
+            elif hour < 17:
+                time_of_day = "afternoon"
+            elif hour < 21:
+                time_of_day = "evening"
+            else:
+                time_of_day = "night"
+            session.context["current_time"] = now.isoformat()
+            session.context["time_of_day"] = time_of_day
+            
             understanding = await self.nlu_service.detect_intent(
                 text=transcript_text,
                 user_id=user_id,
@@ -162,30 +194,70 @@ class ConversationService:
             session.last_entities = understanding.get("entities", {})
             session.context["last_transcript"] = transcript_text
             
-            # Step 3: Generate conversational response
-            logger.info(f"[{session.session_id}] Step 3: Generating response...")
-            response_text = understanding.get("response_suggestion", "I understand.")
+            # Step 4: Execute Action (NEW — the Jarvis magic)
+            logger.info(f"[{session.session_id}] Step 3: Executing action...")
+            action_result = await self.action_executor.execute_action(
+                intent=understanding.get("intent", "unknown"),
+                domain=understanding.get("domain", "general"),
+                entities=understanding.get("entities", {}),
+                confidence=understanding.get("confidence", 0.0),
+                user_id=user_id,
+                user_message=transcript_text
+            )
             
-            # Use NLU to generate a better contextual response
-            if understanding.get("intent") != "unknown":
+            # Step 5: Generate conversational response (with action context)
+            logger.info(f"[{session.session_id}] Step 4: Generating response...")
+            
+            # Build response with action awareness
+            if is_first_time and understanding.get("intent") in ["greeting", "chitchat", "help"]:
+                # First-time greeting — warm welcome + app intro
+                response_text = self._generate_first_time_greeting(time_of_day)
+            elif action_result.get("action_executed"):
+                # Action was performed — generate confirmation response
+                intent_data_with_action = {**understanding}
+                intent_data_with_action["action_result"] = action_result
                 response_text = await self.nlu_service.generate_response(
-                    user_message=transcript_text,
+                    user_message=f"{transcript_text}\n\n[ACTION COMPLETED: {action_result.get('confirmation_text', '')}]",
+                    intent_data=intent_data_with_action,
+                    user_id=user_id
+                )
+            elif action_result.get("action_type") == "needs_clarification":
+                # Need more info — soft follow-up
+                response_text = await self.nlu_service.generate_response(
+                    user_message=f"{transcript_text}\n\n[NEED CLARIFICATION: {action_result.get('error', '')}]",
                     intent_data=understanding,
                     user_id=user_id
                 )
+            else:
+                # Conversation only (greeting, chitchat, help)
+                response_text = understanding.get("response_suggestion", "I understand.")
+                if understanding.get("intent") != "unknown":
+                    response_text = await self.nlu_service.generate_response(
+                        user_message=transcript_text,
+                        intent_data=understanding,
+                        user_id=user_id
+                    )
             
-            # Step 4: Text-to-Speech
-            logger.info(f"[{session.session_id}] Step 4: Synthesizing speech...")
+            # Step 6: Text-to-Speech (graceful — pipeline works without audio)
+            logger.info(f"[{session.session_id}] Step 5: Synthesizing speech...")
             voice_settings = self.voice_profiles.get(voice_profile, self.voice_profiles["default"])
             
-            audio_response = await self.tts_service.synthesize(
-                text=response_text,
-                voice=voice_settings["voice"],
-                speed=voice_settings["speed"]
-            )
+            audio_response = None
+            try:
+                audio_response = await self.tts_service.synthesize(
+                    text=response_text,
+                    voice=voice_settings["voice"],
+                    speed=voice_settings["speed"]
+                )
+            except Exception as tts_err:
+                logger.warning(f"[{session.session_id}] TTS failed (pipeline continues without audio): {tts_err}")
             
             # Analyze sentiment for better interaction
-            sentiment = await self.nlu_service.analyze_sentiment(response_text)
+            sentiment = None
+            try:
+                sentiment = await self.nlu_service.analyze_sentiment(response_text)
+            except Exception:
+                sentiment = {"sentiment": "neutral", "emotion": "calm", "intensity": 0.5}
             
             logger.info(f"[{session.session_id}] ✓ Conversation turn {session.turn_count} complete")
             
@@ -203,14 +275,15 @@ class ConversationService:
                     "confidence": understanding.get("confidence"),
                     "entities": understanding.get("entities", {})
                 },
+                "action_result": action_result,
                 "response": {
                     "text": response_text,
                     "sentiment": sentiment
                 },
                 "audio": {
                     "format": "mp3",
-                    "size_bytes": len(audio_response),
-                    "duration_ms": self._estimate_audio_duration(len(audio_response))
+                    "size_bytes": len(audio_response) if audio_response else 0,
+                    "duration_ms": self._estimate_audio_duration(len(audio_response)) if audio_response else 0
                 },
                 "audio_data": audio_response  # Base64 encode this in the API route
             }
@@ -239,7 +312,21 @@ class ConversationService:
         session = self.get_or_create_session(user_id)
         
         try:
-            # Step 1: Natural Language Understanding
+            # Step 1: Check for first-time greeting
+            is_first_time = user_id not in self._greeted_users
+            if is_first_time:
+                self._greeted_users.add(user_id)
+                session.is_first_interaction = True
+                session.context["is_first_interaction"] = True
+            
+            # Enrich context
+            now = datetime.now()
+            hour = now.hour
+            time_of_day = "morning" if hour < 12 else "afternoon" if hour < 17 else "evening" if hour < 21 else "night"
+            session.context["current_time"] = now.isoformat()
+            session.context["time_of_day"] = time_of_day
+            
+            # Step 2: Natural Language Understanding
             logger.info(f"[{session.session_id}] Understanding: {text}")
             understanding = await self.nlu_service.detect_intent(
                 text=text,
@@ -252,25 +339,60 @@ class ConversationService:
             session.last_entities = understanding.get("entities", {})
             session.context["last_input"] = text
             
-            # Step 2: Generate response
-            response_text = understanding.get("response_suggestion", "I understand.")
+            # Step 3: Execute Action
+            action_result = await self.action_executor.execute_action(
+                intent=understanding.get("intent", "unknown"),
+                domain=understanding.get("domain", "general"),
+                entities=understanding.get("entities", {}),
+                confidence=understanding.get("confidence", 0.0),
+                user_id=user_id,
+                user_message=text
+            )
             
-            if understanding.get("intent") != "unknown":
+            # Step 4: Generate response
+            if is_first_time and understanding.get("intent") in ["greeting", "chitchat", "help"]:
+                response_text = self._generate_first_time_greeting(time_of_day)
+            elif action_result.get("action_executed"):
+                intent_data_with_action = {**understanding}
+                intent_data_with_action["action_result"] = action_result
                 response_text = await self.nlu_service.generate_response(
-                    user_message=text,
+                    user_message=f"{text}\n\n[ACTION COMPLETED: {action_result.get('confirmation_text', '')}]",
+                    intent_data=intent_data_with_action,
+                    user_id=user_id
+                )
+            elif action_result.get("action_type") == "needs_clarification":
+                response_text = await self.nlu_service.generate_response(
+                    user_message=f"{text}\n\n[NEED CLARIFICATION: {action_result.get('error', '')}]",
                     intent_data=understanding,
                     user_id=user_id
                 )
+            else:
+                response_text = understanding.get("response_suggestion", "I understand.")
+                if understanding.get("intent") != "unknown":
+                    response_text = await self.nlu_service.generate_response(
+                        user_message=text,
+                        intent_data=understanding,
+                        user_id=user_id
+                    )
             
-            # Step 3: Text-to-Speech
+            # Step 5: Text-to-Speech (graceful — pipeline works without audio)
             voice_settings = self.voice_profiles.get(voice_profile, self.voice_profiles["default"])
-            audio_response = await self.tts_service.synthesize(
-                text=response_text,
-                voice=voice_settings["voice"],
-                speed=voice_settings["speed"]
-            )
             
-            sentiment = await self.nlu_service.analyze_sentiment(response_text)
+            audio_response = None
+            try:
+                audio_response = await self.tts_service.synthesize(
+                    text=response_text,
+                    voice=voice_settings["voice"],
+                    speed=voice_settings["speed"]
+                )
+            except Exception as tts_err:
+                logger.warning(f"[{session.session_id}] TTS failed (pipeline continues without audio): {tts_err}")
+            
+            sentiment = None
+            try:
+                sentiment = await self.nlu_service.analyze_sentiment(response_text)
+            except Exception:
+                sentiment = {"sentiment": "neutral", "emotion": "calm", "intensity": 0.5}
             
             logger.info(f"[{session.session_id}] ✓ Text conversation turn {session.turn_count} complete")
             
@@ -287,14 +409,15 @@ class ConversationService:
                     "confidence": understanding.get("confidence"),
                     "entities": understanding.get("entities", {})
                 },
+                "action_result": action_result,
                 "response": {
                     "text": response_text,
                     "sentiment": sentiment
                 },
                 "audio": {
                     "format": "mp3",
-                    "size_bytes": len(audio_response),
-                    "duration_ms": self._estimate_audio_duration(len(audio_response))
+                    "size_bytes": len(audio_response) if audio_response else 0,
+                    "duration_ms": self._estimate_audio_duration(len(audio_response)) if audio_response else 0
                 },
                 "audio_data": audio_response
             }
@@ -385,6 +508,16 @@ class ConversationService:
             logger.info(f"Conversation session ended for user: {user_id}")
             return True
         return False
+    
+    def _generate_first_time_greeting(self, time_of_day: str) -> str:
+        """Generate a warm first-time greeting like Jarvis."""
+        greetings = {
+            "morning": "Good morning! I'm your Speak Sync AI assistant — think of me like your personal Jarvis. I can help you manage tasks, track habits, log workouts, manage finances, and much more — all through voice. Just tell me what you need!",
+            "afternoon": "Good afternoon! Welcome to Speak Sync! I'm your AI assistant — like having Jarvis in your pocket. You can ask me to create tasks, log your meals or workouts, track expenses, schedule events — anything you need. Let's make your day productive!",
+            "evening": "Good evening! I'm your Speak Sync AI — your personal Jarvis. I'm here to help you manage your life through voice. Tasks, habits, workouts, expenses, sleep — just tell me what you need and I'll handle it!",
+            "night": "Hey there! I'm your Speak Sync AI assistant. Think of me as your Jarvis. Whether it's adding tasks, logging today's activities, or checking your schedule — just say it and I'll take care of it. What can I do for you?"
+        }
+        return greetings.get(time_of_day, greetings["morning"])
     
     def _create_error_response(self, session: ConversationState, error_message: str) -> Dict:
         """Create standardized error response"""
