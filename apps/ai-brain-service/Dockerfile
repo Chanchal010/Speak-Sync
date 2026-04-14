@@ -11,7 +11,13 @@ RUN apt-get update && apt-get install -y \
 
 # Copy requirements and install dependencies
 COPY apps/ai-brain-service/requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Install CPU-only PyTorch first (saves ~330MB vs GPU version)
+RUN pip install --no-cache-dir --user --timeout 300 \
+    torch==2.1.0+cpu \
+    --extra-index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining dependencies with extended timeout for slow networks
+RUN pip install --no-cache-dir --user --timeout 300 --retries 5 -r requirements.txt
 
 # Stage 2: Production runtime
 FROM python:3.11-slim
