@@ -26,6 +26,7 @@ pydub==0.25.1
 soundfile==0.12.1
 librosa==0.10.1
 numpy==1.26.4
+imageio-ffmpeg>=0.5.1  # Bundles ffmpeg binary - no apt-get needed
 
 # TTS / STT
 edge-tts>=7.0.0
