@@ -5,13 +5,12 @@ pydantic==2.10.4
 pydantic-settings==2.7.0
 python-multipart==0.0.20
 
-# AI & ML
+# AI & ML (API-based - no local models/GPU)
 groq==0.13.0
 openai==1.58.1
-faster-whisper==1.0.3
-sentence-transformers==2.2.2
+supabase>=2.3.0          # Supabase client (Realtime + Storage + DB)
 
-# gRPC
+# gRPC (voice streaming)
 grpcio==1.60.0
 grpcio-tools==1.60.0
 
@@ -21,14 +20,12 @@ psycopg2-binary==2.9.10
 pgvector==0.3.6
 redis==5.2.1
 
-# Audio Processing
+# Audio Processing (lightweight)
 pydub==0.25.1
-soundfile==0.12.1
-librosa==0.10.1
 numpy==1.26.4
 imageio-ffmpeg>=0.5.1  # Bundles ffmpeg binary - no apt-get needed
 
-# TTS / STT
+# TTS / STT (FREE, no API key)
 edge-tts>=7.0.0
 SpeechRecognition>=3.10.0
 
@@ -36,5 +33,3 @@ SpeechRecognition>=3.10.0
 python-dotenv==1.0.1
 aiofiles==24.1.0
 httpx==0.28.1
-pika==1.3.2
-python-jose[cryptography]==3.3.0

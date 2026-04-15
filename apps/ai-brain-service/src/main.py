@@ -1,12 +1,9 @@
-"""
-AI Brain Service - Main FastAPI Application
-Entry point for HTTP REST API
-"""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 import os
+import asyncio
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -18,6 +15,7 @@ from src.api.routes import voice, chat, conversation, scheduling, habits, memory
 from src.database.connection import Database, RedisClient
 from src.database.vector_operations import VectorOperations
 from src.services.vector_memory_service import VectorMemoryService
+from src.services.supabase_realtime_service import SupabaseRealtimeService
 
 # Configure logging
 logging.basicConfig(
@@ -31,6 +29,10 @@ db: Database = None
 redis: RedisClient = None
 vector_ops: VectorOperations = None
 vector_memory_service: VectorMemoryService = None
+realtime_service: SupabaseRealtimeService = None  # Supabase Realtime + Storage
+
+# gRPC server task
+_grpc_task = None
 
 
 @asynccontextmanager
@@ -38,16 +40,16 @@ async def lifespan(app: FastAPI):
     """
     Startup and shutdown events
     """
-    global db, redis, vector_ops, vector_memory_service
-    
+    global db, redis, vector_ops, vector_memory_service, realtime_service, _grpc_task
+
     # Startup
     logger.info("Starting AI Brain Service...")
-    
+
     try:
         # Initialize database connections (optional for STT-only mode)
         database_url = os.getenv("DATABASE_URL")
         redis_url = os.getenv("REDIS_URL")
-        
+
         if database_url and "localhost" not in database_url and "127.0.0.1" not in database_url:
             db = Database()
             await db.connect(
@@ -56,12 +58,12 @@ async def lifespan(app: FastAPI):
                 max_size=15
             )
             logger.info("✓ PostgreSQL connected")
-            
+
             # Initialize vector operations
             vector_ops = VectorOperations(db.pool)
             await vector_ops.initialize_vector_tables()
             logger.info("✓ Vector tables initialized")
-            
+
             # Initialize vector memory service
             openai_api_key = os.getenv("OPENAI_API_KEY")
             if openai_api_key:
@@ -74,33 +76,71 @@ async def lifespan(app: FastAPI):
                 logger.warning("⚠ OpenAI API key not configured - vector memory disabled")
         else:
             logger.warning("⚠ PostgreSQL not configured - running in STT-only mode")
-        
+
         if redis_url and "localhost" not in redis_url and "127.0.0.1" not in redis_url:
             redis = RedisClient()
             await redis.connect(redis_url=redis_url)
             logger.info("✓ Redis connected")
         else:
             logger.warning("⚠ Redis not configured - caching disabled")
-        
-        logger.info("✓ AI Brain Service ready!")
-        
+
+        # ─────────────────────────────────────────────
+        # START gRPC SERVER (port 50051) alongside REST
+        # ─────────────────────────────────────────────
+        try:
+            from src.grpc_server import serve as grpc_serve
+            grpc_port = int(os.getenv("GRPC_PORT", 50051))
+            _grpc_task = asyncio.create_task(
+                grpc_serve(host="0.0.0.0", port=grpc_port)
+            )
+            logger.info(f"✓ gRPC server started on port {grpc_port}")
+        except Exception as grpc_err:
+            logger.warning(f"⚠ gRPC server failed to start: {grpc_err} — REST API still running")
+
+        # ─────────────────────────────────────────────
+        # SUPABASE REALTIME + STORAGE
+        # ─────────────────────────────────────────────
+        supabase_url = os.getenv("SUPABASE_URL")
+        supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        if supabase_url and supabase_key:
+            realtime_service = SupabaseRealtimeService(
+                supabase_url=supabase_url,
+                supabase_service_key=supabase_key
+            )
+            if realtime_service.available:
+                logger.info("✓ Supabase Realtime + Storage ready")
+            else:
+                logger.warning("⚠ Supabase client unavailable (install supabase package)")
+        else:
+            logger.warning("⚠ SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — Realtime disabled")
+
+        logger.info("✓ AI Brain Service ready! REST:8000 | gRPC:50051")
+
     except Exception as e:
         logger.error(f"Startup failed: {e}")
         logger.warning("⚠ Running with limited functionality")
-        # Don't raise - allow service to start without databases for STT testing
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Shutting down AI Brain Service...")
-    
+
+    if _grpc_task and not _grpc_task.done():
+        _grpc_task.cancel()
+        try:
+            await _grpc_task
+        except asyncio.CancelledError:
+            pass
+        logger.info("✓ gRPC server stopped")
+
     if db:
         await db.close()
         logger.info("✓ PostgreSQL disconnected")
-    
+
     if redis:
         await redis.close()
         logger.info("✓ Redis disconnected")
+
 
 
 # Create FastAPI app
@@ -181,20 +221,40 @@ async def health_check():
     except Exception as e:
         health_status["services"]["redis"] = f"unhealthy: {str(e)}"
         health_status["status"] = "unhealthy"
+
+    # Check Supabase Realtime
+    if realtime_service and realtime_service.available:
+        health_status["services"]["supabase_realtime"] = "healthy"
+    elif os.getenv("SUPABASE_URL"):
+        health_status["services"]["supabase_realtime"] = "configured_but_unavailable"
+    else:
+        health_status["services"]["supabase_realtime"] = "not_configured"
+
     # Check OpenAI API key
     if os.getenv("OPENAI_API_KEY"):
         health_status["services"]["openai"] = "configured"
     else:
         health_status["services"]["openai"] = "not_configured"
         health_status["status"] = "degraded"
-    
+
     # Check Groq/OpenRouter API key
     if os.getenv("GROQ_API_KEY") or os.getenv("OPENROUTER_API_KEY"):
         health_status["services"]["llm"] = "configured"
     else:
         health_status["services"]["llm"] = "not_configured"
         health_status["status"] = "degraded"
-    
+
+    # Check BehavioralObserver (Gemini FREE model)
+    if os.getenv("OPENROUTER_API_KEY") or os.getenv("GROQ_API_KEY"):
+        health_status["services"]["behavioral_observer"] = "ready"
+    else:
+        health_status["services"]["behavioral_observer"] = "no_api_key"
+
+    # Check gRPC
+    health_status["services"]["grpc"] = (
+        "running" if _grpc_task and not _grpc_task.done() else "stopped"
+    )
+
     return health_status
 
 

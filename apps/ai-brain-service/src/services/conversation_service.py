@@ -1,6 +1,10 @@
 """
 Conversation Service - Orchestrates complete voice interaction flow
 Integrates: STT → NLU → TTS for natural voice conversations
+
+Behavioral Intelligence: Every interaction is observed by BehavioralObserver
+(using FREE google/gemini-2.0-flash-exp via OpenRouter) to build a growing
+personal model of the user — making responses feel more humanly over time.
 """
 from typing import Optional, Dict, List, AsyncIterator
 import logging
@@ -12,6 +16,8 @@ from src.services.voice_service import get_voice_service
 from src.services.nlu_service import get_nlu_service
 from src.services.tts_service import get_tts_service
 from src.services.action_executor_service import get_action_executor
+from src.services.behavioral_observer import get_behavioral_observer
+from src.services.supabase_realtime_service import get_realtime_service
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +55,12 @@ class ConversationState:
 class ConversationService:
     """
     Complete Voice Conversation Service
-    Orchestrates STT → NLU → TTS pipeline for natural interactions
+    Orchestrates STT → NLU → TTS pipeline for natural interactions.
+    
+    Behavioral Intelligence Layer (BehavioralObserver) runs on every turn:
+    - Observes patterns from each action
+    - Enriches LLM context with personal user data
+    - Gets smarter and more personalized every day
     """
     
     def __init__(self):
@@ -58,6 +69,8 @@ class ConversationService:
         self.nlu_service = get_nlu_service()
         self.tts_service = get_tts_service()
         self.action_executor = get_action_executor()
+        self.behavioral_observer = get_behavioral_observer()  # FREE Gemini Flash
+        self.realtime = get_realtime_service()               # Supabase Realtime → Flutter
         
         # Track which users have interacted before (in-memory for now)
         self._greeted_users: set = set()
@@ -73,7 +86,10 @@ class ConversationService:
             "energetic": {"voice": "shimmer", "speed": 1.1}
         }
         
-        logger.info("✓ Conversation Service initialized")
+        if self.behavioral_observer:
+            logger.info("✓ Conversation Service initialized with Behavioral Intelligence")
+        else:
+            logger.info("✓ Conversation Service initialized (behavioral learning unavailable)")
     
     def get_or_create_session(self, user_id: str) -> ConversationState:
         """Get existing conversation session or create new one"""
@@ -182,7 +198,19 @@ class ConversationService:
                 time_of_day = "night"
             session.context["current_time"] = now.isoformat()
             session.context["time_of_day"] = time_of_day
-            
+
+            # ──────────────────────────────────────────────
+            # BEHAVIORAL INTELLIGENCE — enrich NLU context
+            # ──────────────────────────────────────────────
+            behavioral_context = ""
+            if self.behavioral_observer:
+                behavioral_context = await self.behavioral_observer.enrich_conversation_context(
+                    user_id=user_id,
+                    current_message=transcript_text
+                )
+                if behavioral_context:
+                    session.context["behavioral_context"] = behavioral_context
+
             understanding = await self.nlu_service.detect_intent(
                 text=transcript_text,
                 user_id=user_id,
@@ -260,7 +288,57 @@ class ConversationService:
                 sentiment = {"sentiment": "neutral", "emotion": "calm", "intensity": 0.5}
             
             logger.info(f"[{session.session_id}] ✓ Conversation turn {session.turn_count} complete")
-            
+
+            # ──────────────────────────────────────────────────────
+            # BEHAVIORAL INTELLIGENCE — observe this action (async,
+            # non-blocking — never delays the user's response)
+            # ──────────────────────────────────────────────────────
+            if self.behavioral_observer and action_result.get("action_type") not in ["unknown", "needs_clarification"]:
+                asyncio.create_task(
+                    self.behavioral_observer.observe(
+                        user_id=user_id,
+                        event={
+                            "type": understanding.get("intent", "conversation"),
+                            "data": {
+                                "transcript": transcript_text,
+                                "entities": understanding.get("entities", {}),
+                                "action_executed": action_result.get("action_executed", False)
+                            },
+                            "timestamp": datetime.utcnow().isoformat(),
+                            "metadata": {
+                                "time_of_day": time_of_day,
+                                "day_of_week": now.strftime('%A'),
+                                "hour": hour
+                            }
+                        }
+                    )
+                )
+
+            # ──────────────────────────────────────────────────────
+            # SUPABASE REALTIME → FLUTTER (non-blocking live push)
+            # Conversation transcript + AI response stream to Flutter UI
+            # ──────────────────────────────────────────────────────
+            if self.realtime and self.realtime.available:
+                asyncio.create_task(
+                    self.realtime.push_conversation_update(
+                        user_id=user_id,
+                        session_id=session.session_id,
+                        transcript=transcript_text,
+                        response=response_text
+                    )
+                )
+                # Push domain-specific event so Flutter can update the right screen
+                if action_result.get("action_executed"):
+                    domain = understanding.get("domain", "general")
+                    if domain == "productivity":
+                        asyncio.create_task(
+                            self.realtime.push_habit_update(user_id, action_result)
+                        )
+                    elif domain in ["scheduling", "calendar"]:
+                        asyncio.create_task(
+                            self.realtime.push_task_update(user_id, action_result)
+                        )
+
             return {
                 "session_id": session.session_id,
                 "turn": session.turn_count,

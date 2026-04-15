@@ -19,20 +19,9 @@ services:
     networks:
       - speak-sync-network
 
-  redis:
-    image: redis:7-alpine
-    container_name: speak-sync-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - speak-sync-network
+  # Redis is now Upstash (cloud, free) — remove local container
+  # REDIS_URL in .env points to: rediss://default:password@host.upstash.io:6379
+  # No local redis container needed anymore.
 
   # Application Services
   scheduler-service:
@@ -103,16 +92,23 @@ services:
     container_name: speak-sync-ai-brain
     environment:
       PORT: 8000
+      GRPC_PORT: 50051
       HOST: 0.0.0.0
       DATABASE_URL: ${DATABASE_URL}
       RABBITMQ_URL: ${RABBITMQ_URL}
       GROQ_API_KEY: ${GROQ_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      # Supabase (PostgreSQL + Realtime + Storage)
+      SUPABASE_URL: ${SUPABASE_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      # Upstash Redis (cloud, free tier)
+      REDIS_URL: ${REDIS_URL}
       DEFAULT_MODEL: ${DEFAULT_MODEL:-llama-3.1-70b-versatile}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-text-embedding-3-small}
-      REDIS_URL: ${REDIS_URL}
     ports:
-      - "8000:8000"
+      - "8000:8000"    # REST API
+      - "50051:50051"  # gRPC streaming
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
       interval: 30s
@@ -173,7 +169,7 @@ services:
 
 volumes:
   mongodb_data:
-  redis_data:
+  # redis_data removed — using Upstash cloud Redis (free tier) instead
 
 
 networks:

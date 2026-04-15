@@ -144,4 +144,5 @@ flutter/speak_sync_app/.idea/
 flutter/speak_sync_app/build/
 flutter/speak_sync_app/.flutter-plugins
 flutter/speak_sync_app/.flutter-plugins-dependencies
+flutter/speak_sync_app/android/local.properties
 
