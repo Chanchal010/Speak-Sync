@@ -42,9 +42,9 @@
 - Timestamps on all records for training data
 
 ai will be mainly used by openai-sdk & pytorch and python things where needed 
-llama-3.3-70b-versatile -->  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
+llama-3.3-70b-versatile -->  use env var: OPENROUTER_API_KEY (set in .env, never commit the actual key)
 
-'BAAI/bge-small-en-v1.5' --> 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
+'BAAI/bge-small-en-v1.5' --> use env var: HUGGINGFACE_API_TOKEN (set in .env, never commit the actual key)
 
 Chatter Box TTS - python
 whisper-large-v3-turbo STT - may be pip install whisper like things 
